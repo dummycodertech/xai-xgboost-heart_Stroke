@@ -873,4 +873,4 @@ key_source_files:
 ## 📄 License & Maintainer
 
 - **License**: Currently unassigned. [VERIFY: Add an open-source license such as MIT or Apache 2.0 via a LICENSE file].
-- **Author & Maintainer**: **Yagas Vashist** ([dummycodertech](https://github.com/dummycodertech)) — Contact: `yagasvashist@gmail.com`.
+- **Author & Maintainer**: **Yagas Vashist** ([dummycodertech](https://github.com/dummycodertech)).
