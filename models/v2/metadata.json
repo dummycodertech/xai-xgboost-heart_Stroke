@@ -1,0 +1,10 @@
+{
+  "phase": "phase1",
+  "n_train": 4087,
+  "n_test": 1022,
+  "n_train_pos": 199,
+  "n_test_pos": 50,
+  "scale_pos_weight": 19.537688442211056,
+  "seed": 42,
+  "note": "v2 pipeline \u2014 test set NOT evaluated here. Threshold and calibration determined in Phase 5 from OOF probabilities."
+}
