@@ -1,0 +1,97 @@
+{
+  "aggregated_features": [
+    "age",
+    "avg_glucose_level",
+    "bmi",
+    "risk_factors_count",
+    "bmi_missing",
+    "hypertension",
+    "heart_disease",
+    "gender",
+    "ever_married",
+    "work_type",
+    "Residence_type",
+    "smoking_status"
+  ],
+  "mean_abs_shap_per_feature": {
+    "age": 4.631166141584004,
+    "avg_glucose_level": 0.7905465707640684,
+    "bmi": 2.178504188661264,
+    "risk_factors_count": 0.3566752380393466,
+    "bmi_missing": 0.2611552020057476,
+    "hypertension": 0.15855043409021088,
+    "heart_disease": 0.08545418366727608,
+    "gender": 0.25663441192386477,
+    "ever_married": 0.23521142254382665,
+    "work_type": 0.42710732289386905,
+    "Residence_type": 0.33149574776654067,
+    "smoking_status": 0.43740656816823065
+  },
+  "young_compounding_risk_thesis": {
+    "n_young_total": 2316,
+    "n_young_rfc_ge_2": 35,
+    "n_young_rfc_0": 1687,
+    "mean_risk_rfc_ge_2": 0.031333472579717636,
+    "median_risk_rfc_ge_2": 0.0005448031006380916,
+    "mean_risk_rfc_0": 0.0062810382805764675,
+    "median_risk_rfc_0": 1.6859014067449607e-05,
+    "relative_risk_increase": 4.988581657409668,
+    "thesis_confirmed": true
+  },
+  "shap_lime_agreement": {
+    "n_evaluated": 200,
+    "mean_spearman_rank_correlation": 0.25232830465420475,
+    "median_spearman_rank_correlation": 0.2695367541469031,
+    "iqr_spearman": [
+      0.14043091392527723,
+      0.3592879632483404
+    ],
+    "mean_top3_feature_overlap": 0.3316666666666667,
+    "distribution_spearman": [
+      0.506,
+      0.324,
+      0.438,
+      0.293,
+      0.348,
+      0.354,
+      0.035,
+      -0.191,
+      -0.017,
+      -0.063,
+      -0.037,
+      0.323,
+      0.131,
+      0.401,
+      0.238,
+      0.441,
+      -0.119,
+      0.4,
+      0.159,
+      0.525
+    ]
+  },
+  "faithfulness_deletion_impact": {
+    "shap_top_deletion": [
+      0.14148376882076263,
+      0.1601203978061676,
+      0.14565950632095337,
+      0.13419859111309052,
+      0.11637841165065765,
+      0.11577165871858597,
+      0.11549560725688934,
+      0.1123712807893753,
+      0.10652312636375427
+    ],
+    "random_deletion": [
+      0.01708122529089451,
+      0.033493123948574066,
+      0.05187113583087921,
+      0.06407681107521057,
+      0.07468671351671219,
+      0.08330991119146347,
+      0.09106165915727615,
+      0.09907614439725876,
+      0.10514198988676071
+    ]
+  }
+}
