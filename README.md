@@ -957,6 +957,80 @@ key_source_files:
 
 ---
 
+## 🌐 Web Application & REST API (`feat/web-api`)
+
+In addition to the Streamlit triage dashboard (`app.py`), the project includes a production-ready, decoupled web interface (`web/`) backed by a high-efficiency FastAPI REST service (`api/`), engineered for zero-cost deployment on **Render Free Tier** and **Vercel**.
+
+```
+┌──────────────────────────────────────────────┐        ┌──────────────────────────────────────────────┐
+│        Vercel (React 18 + Three.js)          │        │        Render Free Tier (FastAPI Service)    │
+│  - Interactive 3D Parametric Heart Canvas    │  HTTP  │  - Python 3.12+ (Uvicorn ASGI)               │
+│  - Dynamic Triage Strategy Switcher          │───────>│  - 5-Fold TreeSHAP Log-Odds Attribution      │
+│  - Live SHAP Waterfall & Local Surrogates    │        │  - In-House Weighted Ridge Local Surrogate   │
+│  - Zero PII Stored (No LocalStorage/Cookies) │        │  - Anti-Spoofed IP Rate Limiter & Scoped CORS│
+└──────────────────────────────────────────────┘        └──────────────────────────────────────────────┘
+```
+
+### Key Technical Characteristics
+
+1. **Exact 5-Fold TreeSHAP in Raw Log-Odds**:
+   - `models/calibrated_pipeline.joblib` contains an ensemble of 5 cross-validation estimators. SHAP attributions are computed by running native TreeSHAP across all 5 boosters, averaging margins, base values, and contributions.
+   - Attributions are strictly additive: $\text{base\_value} + \sum \phi_i = \text{raw\_margin}$ within numerical precision ($< 10^{-6}$).
+   - The UI explicitly clarifies that SHAP bars explain the raw model score (log-odds), while the headline probability is isotonic-calibrated.
+2. **Lean In-House Local Surrogate (LIME Alternative)**:
+   - To stay comfortably under Render's 512 MB memory limit, a custom weighted Ridge local surrogate was developed. It perturbs inputs locally and reports risk impact directly in **calibrated probability percentage points** in $< 30\text{ ms}$, avoiding heavyweight dependencies.
+3. **Anti-Spoofing Rate Limiting & Zero-PII Security**:
+   - IP rate limiting (`slowapi`) enforces `TRUSTED_PROXIES` validation: `X-Forwarded-For` headers are only trusted from declared reverse proxies, preventing client header spoofing.
+   - Requests and responses containing patient features are **never logged** (`api/main.py` sanitizes access logs to path and status code only).
+   - Validation errors (HTTP 422) return generic guidance and never echo patient inputs back to the client.
+4. **Cold-Start & Memory Benchmarks**:
+   - **Cold Start**: ~7.16s to load pipeline, verify schemas, and serve the first prediction.
+   - **Peak Memory**: ~104 MB (well under the 400 MB constraint and 512 MB Render ceiling).
+   - **Prediction Latency**: ~821 ms (including 5-fold TreeSHAP and local surrogate extraction).
+
+### Local Dual-Process Execution
+
+To run both backend and frontend locally:
+
+```powershell
+# 1. Start the FastAPI backend on port 8000
+python -m uvicorn api.main:app --port 8000 --reload
+
+# 2. In a separate terminal, launch the Vite React frontend
+cd web
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser. By default, with `VITE_API_URL` unset, the frontend runs in labeled demo mode with simulated outputs. To connect to your local backend, copy `web/.env.example` to `web/.env.local`:
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+### Production Deployment
+
+#### 1. Backend on Render (Free Web Service)
+- **Repo Root**: Root of this repository.
+- **Blueprint**: Connect your repo and deploy via [`render.yaml`](render.yaml) or configure manually:
+  - **Environment**: Python 3.12+
+  - **Build Command**: `pip install -r api/requirements.txt`
+  - **Start Command**: `uvicorn api.main:app --host 0.0.0.0 --port $PORT --proxy-headers`
+  - **Environment Variables**:
+    - `ENVIRONMENT`: `production`
+    - `FRONTEND_URL`: `https://your-app.vercel.app` (your production Vercel domain)
+    - `VERCEL_PREVIEW_REGEX`: `^https:\/\/stroke-xai-.*\.vercel\.app$` (scoped to your project)
+
+#### 2. Frontend on Vercel
+- **Root Directory**: `web`
+- **Framework Preset**: Vite
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: `https://your-render-service.onrender.com`
+- When `VITE_API_URL` is set, the frontend automatically warms up the Render backend (`/health`) on initial load and displays a clear cold-start notice if Render is waking up from idle.
+
+---
+
 ## 📚 References & Acknowledgements
 
 - **Dataset**: Sourced from the [Healthcare Dataset Stroke Data](https://raw.githubusercontent.com/karavokyrismichail/Stroke-Prediction---Random-Forest/main/healthcare-dataset-stroke-data/healthcare-dataset-stroke-data.csv) mirror, originally provided on [Kaggle by fedesoriano](https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset).
