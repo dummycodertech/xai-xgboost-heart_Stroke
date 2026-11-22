@@ -1,0 +1,109 @@
+# ============================================================
+#  configs/default.yaml
+#  Single source of truth for all constants in the pipeline.
+#  Load via src/config.py::load_config().
+# ============================================================
+
+# --- Reproducibility ---
+seed: 42
+
+# --- Data ---
+data:
+  raw_path: "data/healthcare-dataset-stroke-data.csv"
+  train_pkl: "data/train_processed.pkl"       # legacy v1 (kept)
+  test_pkl:  "data/test_processed.pkl"        # legacy v1 (kept)
+  test_size: 0.20
+  split_indices_path: "reports/split_indices.json"
+
+# --- Feature engineering ---
+features:
+  bmi_missing_indicator: true          # add bmi_missing binary flag
+  binary_passthrough:                  # pass as-is instead of OHE
+    - hypertension
+    - heart_disease
+  numeric:
+    - age
+    - avg_glucose_level
+    - bmi
+    - risk_factors_count
+  categorical:
+    - gender
+    - ever_married
+    - work_type
+    - Residence_type
+    - smoking_status
+  # Ablation switches (Phase 3)
+  ablations:
+    use_risk_factors_count: true
+    use_bmi_missing: true
+    use_glucose_bands: false           # evaluated in Phase 3
+    use_bmi_categories: false          # evaluated in Phase 3
+    use_age_hypertension_interaction: false
+    use_age_glucose_interaction: false
+    use_age_under18_flag: false
+
+# --- Cross-validation ---
+cv:
+  n_splits: 5
+  n_repeats: 5
+  strategy: "RepeatedStratifiedKFold"
+
+# --- Imbalance strategy ---
+# Options: none | scale_pos_weight | smote | borderline_smote | random_undersample | balanced_bagging
+imbalance:
+  strategy: "scale_pos_weight"
+
+# --- Model: XGBoost (v1 legacy values, overridden by Optuna in Phase 4) ---
+xgboost:
+  max_depth: 4
+  learning_rate: 0.05
+  n_estimators: 200
+  subsample: 0.8
+  eval_metric: "logloss"
+  use_label_encoder: false
+  # scale_pos_weight is computed at runtime as neg/pos ratio; do not hard-code here
+  monotone_constraints: null           # Phase 4: compare null vs {age:1, avg_glucose_level:1}
+
+# --- Cost model for threshold selection ---
+cost:
+  fn_fp_ratio: 10                      # cost_FN / cost_FP default
+  sensitivity_ratios: [5, 10, 20, 50]
+  min_recall_target: 0.80
+
+# --- Hyperparameter tuning (Phase 4) ---
+optuna:
+  n_trials: 100
+  storage: "sqlite:///reports/optuna.db"
+  study_name: "stroke_xgb_prc"
+  optimize_metric: "pr_auc"
+  secondary_metric: "f2"
+
+# --- Calibration (Phase 5) ---
+calibration:
+  method: "isotonic"                   # compare: isotonic | sigmoid (chosen by OOF Brier)
+  cv: 5
+
+# --- Conformal prediction (Phase 7) ---
+conformal:
+  coverage: 0.90
+  method: "split"                      # split | mondrian
+
+# --- Paths: v2 outputs ---
+paths:
+  pipeline_v2: "models/v2/pipeline.joblib"
+  metadata_v2: "models/v2/metadata.json"
+  reports_dir: "reports"
+  plots_v2_dir: "plots/v2"
+  edge_cases_v2: "reports/edge_cases_v2.json"
+  final_test_report_json: "reports/final_test_report.json"
+  final_test_report_md:   "reports/final_test_report.md"
+
+# --- Bootstrap CI ---
+bootstrap:
+  n_resamples: 1000
+  alpha: 0.05                          # 95% CI
+
+# --- SHAP-vs-LIME agreement ---
+shap_lime:
+  n_patients: 200
+  stability_resamples: 20
