@@ -4,10 +4,288 @@
     "n_test_positives": 50,
     "n_test_negatives": 972
   },
-  "v2_final_model": {
-    "model_type": "Tuned XGBoost + Isotonic CalibratedClassifierCV",
-    "operating_threshold": 0.08259259259259258,
-    "threshold_selection_rule": "cost_ratio_10",
+  "operating_thresholds_evaluation": {
+    "cost_based_10": {
+      "name": "Cost-based (FN/FP = 10)",
+      "threshold": 0.08259259259259258,
+      "provenance": "Selected on OOF calibrated training set via cost utility model (FN cost = 10 * FP cost).",
+      "metrics": {
+        "threshold": 0.08259259259259258,
+        "roc_auc": 0.7899588477366255,
+        "pr_auc": 0.18217497751754677,
+        "brier": 0.04349104600013555,
+        "log_loss": 0.17213349365722655,
+        "recall": 0.62,
+        "precision": 0.11923076923076924,
+        "specificity": 0.76440329218107,
+        "f1": 0.2,
+        "f2": 0.33695652173913043,
+        "nns": 8.387096774193548,
+        "flag_rate": 0.25440313111545987,
+        "tp": 31,
+        "fp": 229,
+        "fn": 19,
+        "tn": 743,
+        "n_pos": 50,
+        "n_neg": 972
+      },
+      "bootstrap_95_ci": {
+        "roc_auc": {
+          "mean": 0.7883724382716047,
+          "lo": 0.7184436728395062,
+          "hi": 0.847727366255144
+        },
+        "pr_auc": {
+          "mean": 0.19645473714240483,
+          "lo": 0.12604591262653056,
+          "hi": 0.28746748994834953
+        },
+        "brier": {
+          "mean": 0.043507173110385836,
+          "lo": 0.041506781389409934,
+          "hi": 0.045363845352917646
+        },
+        "log_loss": {
+          "mean": 0.17273377933163228,
+          "lo": 0.15580999321675565,
+          "hi": 0.19330870857627172
+        },
+        "recall": {
+          "mean": 0.6203,
+          "lo": 0.48,
+          "hi": 0.76
+        },
+        "precision": {
+          "mean": 0.11944536562700177,
+          "lo": 0.0946461553416934,
+          "hi": 0.14400169491525422
+        },
+        "specificity": {
+          "mean": 0.764469135802469,
+          "lo": 0.7366255144032922,
+          "hi": 0.7911522633744856
+        },
+        "f1": {
+          "mean": 0.20024102937407542,
+          "lo": 0.15853356677131128,
+          "hi": 0.24183006535947713
+        },
+        "f2": {
+          "mean": 0.3371368406675056,
+          "lo": 0.2670940170940171,
+          "hi": 0.40425531914893614
+        },
+        "nns": {
+          "mean": 8.472654547382975,
+          "lo": 6.944362745098039,
+          "hi": 10.565670289855072
+        },
+        "flag_rate": {
+          "mean": 0.2543551859099804,
+          "lo": 0.22896281800391388,
+          "hi": 0.2808219178082192
+        },
+        "fp": {
+          "mean": 228.936,
+          "lo": 203.0,
+          "hi": 256.0
+        },
+        "tp": {
+          "mean": 31.015,
+          "lo": 24.0,
+          "hi": 38.0
+        }
+      }
+    },
+    "min_recall_80pct": {
+      "name": "Target 80% OOF Recall",
+      "threshold": 0.05805805805805806,
+      "provenance": "Selected on OOF calibrated training set to guarantee >= 80% screening sensitivity.",
+      "metrics": {
+        "threshold": 0.05805805805805806,
+        "roc_auc": 0.7899588477366255,
+        "pr_auc": 0.18217497751754677,
+        "brier": 0.04349104600013555,
+        "log_loss": 0.17213349365722655,
+        "recall": 0.78,
+        "precision": 0.11746987951807229,
+        "specificity": 0.698559670781893,
+        "f1": 0.20418848167539266,
+        "f2": 0.3665413533834586,
+        "nns": 8.512820512820513,
+        "flag_rate": 0.324853228962818,
+        "tp": 39,
+        "fp": 293,
+        "fn": 11,
+        "tn": 679,
+        "n_pos": 50,
+        "n_neg": 972
+      },
+      "bootstrap_95_ci": {
+        "roc_auc": {
+          "mean": 0.7883724382716047,
+          "lo": 0.7184436728395062,
+          "hi": 0.847727366255144
+        },
+        "pr_auc": {
+          "mean": 0.19645473714240483,
+          "lo": 0.12604591262653056,
+          "hi": 0.28746748994834953
+        },
+        "brier": {
+          "mean": 0.043507173110385836,
+          "lo": 0.041506781389409934,
+          "hi": 0.045363845352917646
+        },
+        "log_loss": {
+          "mean": 0.17273377933163228,
+          "lo": 0.15580999321675565,
+          "hi": 0.19330870857627172
+        },
+        "recall": {
+          "mean": 0.7791600000000001,
+          "lo": 0.66,
+          "hi": 0.88
+        },
+        "precision": {
+          "mean": 0.11748746982845168,
+          "lo": 0.1,
+          "hi": 0.13497129781232123
+        },
+        "specificity": {
+          "mean": 0.698551440329218,
+          "lo": 0.6697530864197531,
+          "hi": 0.7263631687242798
+        },
+        "f1": {
+          "mean": 0.20413966358594451,
+          "lo": 0.1745970695970696,
+          "hi": 0.2330781636620714
+        },
+        "f2": {
+          "mean": 0.3662551496641779,
+          "lo": 0.3125,
+          "hi": 0.4142781819804941
+        },
+        "nns": {
+          "mean": 8.564196822250326,
+          "lo": 7.408982683982684,
+          "hi": 10.0
+        },
+        "flag_rate": {
+          "mean": 0.3248199608610567,
+          "lo": 0.2964774951076321,
+          "hi": 0.35325342465753423
+        },
+        "fp": {
+          "mean": 293.008,
+          "lo": 265.975,
+          "hi": 321.0
+        },
+        "tp": {
+          "mean": 38.958,
+          "lo": 33.0,
+          "hi": 44.0
+        }
+      }
+    },
+    "high_precision": {
+      "name": "High Precision (Cost ratio = 5)",
+      "threshold": 0.13653653653653655,
+      "provenance": "Selected on OOF calibrated training set for higher PPV / lower false-alarm load.",
+      "metrics": {
+        "threshold": 0.13653653653653655,
+        "roc_auc": 0.7899588477366255,
+        "pr_auc": 0.18217497751754677,
+        "brier": 0.04349104600013555,
+        "log_loss": 0.17213349365722655,
+        "recall": 0.32,
+        "precision": 0.18823529411764706,
+        "specificity": 0.9290123456790124,
+        "f1": 0.23703703703703702,
+        "f2": 0.28070175438596495,
+        "nns": 5.3125,
+        "flag_rate": 0.08317025440313111,
+        "tp": 16,
+        "fp": 69,
+        "fn": 34,
+        "tn": 903,
+        "n_pos": 50,
+        "n_neg": 972
+      },
+      "bootstrap_95_ci": {
+        "roc_auc": {
+          "mean": 0.7883724382716047,
+          "lo": 0.7184436728395062,
+          "hi": 0.847727366255144
+        },
+        "pr_auc": {
+          "mean": 0.19645473714240483,
+          "lo": 0.12604591262653056,
+          "hi": 0.28746748994834953
+        },
+        "brier": {
+          "mean": 0.043507173110385836,
+          "lo": 0.041506781389409934,
+          "hi": 0.045363845352917646
+        },
+        "log_loss": {
+          "mean": 0.17273377933163228,
+          "lo": 0.15580999321675565,
+          "hi": 0.19330870857627172
+        },
+        "recall": {
+          "mean": 0.31971999999999995,
+          "lo": 0.2,
+          "hi": 0.46
+        },
+        "precision": {
+          "mean": 0.18862431611405134,
+          "lo": 0.12087912087912088,
+          "hi": 0.26317616959064327
+        },
+        "specificity": {
+          "mean": 0.9289691358024692,
+          "lo": 0.911522633744856,
+          "hi": 0.9454732510288066
+        },
+        "f1": {
+          "mean": 0.23665153728755148,
+          "lo": 0.15384615384615385,
+          "hi": 0.3262411347517731
+        },
+        "f2": {
+          "mean": 0.28005511745522726,
+          "lo": 0.17857142857142858,
+          "hi": 0.3873536829082604
+        },
+        "nns": {
+          "mean": 5.521955667088704,
+          "lo": 3.7997368421052635,
+          "hi": 8.272727272727273
+        },
+        "flag_rate": {
+          "mean": 0.08319765166340508,
+          "lo": 0.06653620352250489,
+          "hi": 0.09980430528375733
+        },
+        "fp": {
+          "mean": 69.042,
+          "lo": 53.0,
+          "hi": 86.0
+        },
+        "tp": {
+          "mean": 15.986,
+          "lo": 10.0,
+          "hi": 23.0
+        }
+      }
+    }
+  },
+  "primary_model_evaluation": {
+    "name": "Cost-based (FN/FP = 10)",
+    "threshold": 0.08259259259259258,
+    "provenance": "Selected on OOF calibrated training set via cost utility model (FN cost = 10 * FP cost).",
     "metrics": {
       "threshold": 0.08259259259259258,
       "roc_auc": 0.7899588477366255,
@@ -29,11 +307,6 @@
       "n_neg": 972
     },
     "bootstrap_95_ci": {
-      "threshold": {
-        "mean": 0.08259259259259256,
-        "lo": 0.08259259259259258,
-        "hi": 0.08259259259259258
-      },
       "roc_auc": {
         "mean": 0.7883724382716047,
         "lo": 0.7184436728395062,
@@ -88,6 +361,117 @@
         "mean": 0.2543551859099804,
         "lo": 0.22896281800391388,
         "hi": 0.2808219178082192
+      },
+      "fp": {
+        "mean": 228.936,
+        "lo": 203.0,
+        "hi": 256.0
+      },
+      "tp": {
+        "mean": 31.015,
+        "lo": 24.0,
+        "hi": 38.0
+      }
+    }
+  },
+  "young_patients_age_lt_50": {
+    "full_dataset": {
+      "subset": "full_dataset",
+      "total_young_patients": 2899,
+      "total_strokes": 20,
+      "overall_young_rate": 0.006898930665746809,
+      "overall_per_1000": 6.9,
+      "by_risk_factors_count": {
+        "risk_factors_0": {
+          "group_size": 2099,
+          "stroke_count": 11,
+          "stroke_rate": 0.005240590757503573,
+          "rate_per_1000": 5.24
+        },
+        "risk_factors_1": {
+          "group_size": 761,
+          "stroke_count": 8,
+          "stroke_rate": 0.010512483574244415,
+          "rate_per_1000": 10.51
+        },
+        "risk_factors_2": {
+          "group_size": 39,
+          "stroke_count": 1,
+          "stroke_rate": 0.02564102564102564,
+          "rate_per_1000": 25.64
+        },
+        "risk_factors_3": {
+          "group_size": 0,
+          "stroke_count": 0,
+          "stroke_rate": 0.0,
+          "rate_per_1000": 0.0
+        }
+      }
+    },
+    "training_set": {
+      "subset": "training_set",
+      "total_young_patients": 2316,
+      "total_strokes": 12,
+      "overall_young_rate": 0.0051813471502590676,
+      "overall_per_1000": 5.18,
+      "by_risk_factors_count": {
+        "risk_factors_0": {
+          "group_size": 1687,
+          "stroke_count": 7,
+          "stroke_rate": 0.004149377593360996,
+          "rate_per_1000": 4.15
+        },
+        "risk_factors_1": {
+          "group_size": 594,
+          "stroke_count": 4,
+          "stroke_rate": 0.006734006734006734,
+          "rate_per_1000": 6.73
+        },
+        "risk_factors_2": {
+          "group_size": 35,
+          "stroke_count": 1,
+          "stroke_rate": 0.02857142857142857,
+          "rate_per_1000": 28.57
+        },
+        "risk_factors_3": {
+          "group_size": 0,
+          "stroke_count": 0,
+          "stroke_rate": 0.0,
+          "rate_per_1000": 0.0
+        }
+      }
+    },
+    "test_set": {
+      "subset": "test_set",
+      "total_young_patients": 583,
+      "total_strokes": 8,
+      "overall_young_rate": 0.0137221269296741,
+      "overall_per_1000": 13.72,
+      "by_risk_factors_count": {
+        "risk_factors_0": {
+          "group_size": 412,
+          "stroke_count": 4,
+          "stroke_rate": 0.009708737864077669,
+          "rate_per_1000": 9.71
+        },
+        "risk_factors_1": {
+          "group_size": 167,
+          "stroke_count": 4,
+          "stroke_rate": 0.023952095808383235,
+          "rate_per_1000": 23.95
+        },
+        "risk_factors_2": {
+          "group_size": 4,
+          "stroke_count": 0,
+          "stroke_rate": 0.0,
+          "rate_per_1000": 0.0
+        },
+        "risk_factors_3": {
+          "group_size": 0,
+          "stroke_count": 0,
+          "stroke_rate": 0.0,
+          "rate_per_1000": 0.0
+        }
       }
     }
   },
@@ -101,6 +485,9 @@
       "accuracy": 0.6262230919765166,
       "recall": 0.8,
       "precision": 0.0970873786407767,
+      "specificity": 0.6172839506172839,
+      "false_alarms": 372,
+      "nns": 10.3,
       "f1": 0.17316017316017315,
       "confusion_matrix": [
         [

@@ -1,13 +1,13 @@
-# Model Card: Stroke Risk Prediction & Triage System (v2 Rigorous Pipeline)
+# Model Card: Stroke Risk Prediction & Triage System (v2 Production Pipeline)
 
 ---
 
 ## 1. Model Details
-- **Model Name**: Stroke Risk Clinical Triage Classifier (v2)
+- **Model Name**: Stroke Risk Clinical Triage Classifier (v2 Production)
 - **Model Architecture**: Tuned XGBoost (`max_depth=8`, `learning_rate=0.206`, `colsample_bytree=0.526`, monotonic constraints on age & glucose) wrapped in an Isotonic `CalibratedClassifierCV` (5-fold).
 - **Version**: 2.0.0 (Upgrade over legacy heuristic v1)
-- **Primary Developer**: Upgraded by Senior ML Engineer / Applied Statistics Reviewer for `dummycodertech/xai-xgboost-heart_Stroke`
-- **License**: Pending user selection (see `LICENSE` file)
+- **Primary Developer**: Upgraded for `dummycodertech/xai-xgboost-heart_Stroke`
+- **License**: MIT License with Clinical Research Software Disclaimer (see `LICENSE`)
 - **Frameworks**: scikit-learn 1.8.0, XGBoost 3.2.0, SHAP 0.51.0, LIME 0.2.0.1, Python 3.11–3.14
 
 ---
@@ -36,75 +36,77 @@
 
 ---
 
-## 4. Performance Metrics (One-Time Held-Out Test Set, N=1,022, 50 Positives)
+## 4. Performance Across Pre-Selected Operating Points (Held-Out Test Set, N=1,022, 50 Positives)
 
-All metrics reported with **95% Bootstrap Confidence Intervals** (1,000 resamples):
+All thresholds were fixed **strictly out-of-fold** from the training partition before evaluating the test set. All metrics include **95% Bootstrap Confidence Intervals** (1,000 resamples):
 
-| Metric | Measured Point Estimate | 95% Bootstrap Confidence Interval |
-| :--- | :--- | :--- |
-| **Operating Threshold** | `0.0826` | Selected OOF via cost model ($Cost_{FN} / Cost_{FP} = 10$) |
-| **ROC-AUC** | **0.7900** | `[0.7184, 0.8477]` |
-| **PR-AUC (Average Precision)** | **0.1822** | `[0.1260, 0.2875]` |
-| **Recall (Sensitivity)** | **62.00%** (31/50) | `[48.00%, 76.00%]` |
-| **Precision (PPV)** | **11.92%** | `[0.0946, 0.1440]` |
-| **Specificity (TNR)** | **76.44%** (743/972)| `[0.7366, 0.7912]` |
-| **Brier Score** | **0.0435** | `[0.0415, 0.0454]` |
-| **F1 Score** | **0.2000** | `[0.1585, 0.2418]` |
-| **F2 Score** | **0.3370** | `[0.2671, 0.4043]` |
-| **Number Needed to Screen (NNS)** | **8.4 patients** | (Screen 8.4 flagged patients to detect 1 stroke) |
-| **Population Flag Rate** | **25.4%** (260/1022) | `[22.89%, 28.08%]` |
+| Operating Point | Threshold | Recall (Sensitivity) | Precision (PPV) | Specificity (TNR) | False Alarms (FP) | NNS (Screened/Stroke) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Legacy v1 (Test Peaked)** | `0.1500` | 80.0% (40/50) | 9.7% | 61.7% | 372 | 10.3 |
+| **v2: Cost-Optimal (FN/FP=10)** | `0.0826` | **62.0%** `[48.0%, 76.0%]` | **11.9%** `[9.5%, 14.4%]` | **76.4%** `[73.7%, 79.1%]` | **229** `[203, 256]` | **8.4** `[6.9, 10.6]` |
+| **v2: Target 80% OOF Recall** | `0.0581` | **78.0%** `[66.0%, 88.0%]` | **11.7%** `[10.0%, 13.5%]` | **69.9%** `[67.0%, 72.6%]` | **293** `[266, 321]` | **8.5** `[7.4, 10.0]` |
+| **v2: High Precision** | `0.1365` | **32.0%** `[20.0%, 46.0%]` | **18.8%** `[12.1%, 26.3%]` | **92.9%** `[91.2%, 94.5%]` | **69** `[53, 86]` | **5.3** `[3.8, 8.3]` |
 
-### Confusion Matrix (Test Set)
+### Global Ranking & Calibration Metrics
+- **ROC-AUC**: **0.7900** `[0.7184, 0.8477]` (Legacy v1: 0.8073)
+- **PR-AUC**: **0.1822** `[0.1260, 0.2875]` (Legacy v1: 0.1691). The change in PR-AUC is within the bootstrap confidence interval.
+- **Brier Score**: **0.0435** `[0.0415, 0.0454]` (vs raw uncalibrated 0.0658; ECE reduced to 0.0015).
+
+### Confusion Matrix at Cost-Optimal Threshold ($\tau = 0.0826$)
 ```
                    Predicted Low Risk    Predicted High Risk (Flagged)
-Actual No Stroke          743                         229
-Actual Stroke              19                          31
+Actual No Stroke          743                         229          [Total: 972]
+Actual Stroke              19                          31          [Total:  50]
 ```
 
 ---
 
-## 5. Probability Calibration
-- Uncalibrated models with heavy class-weight penalties (`scale_pos_weight=19.54`) severely distort predicted probabilities, making risk percentages clinically meaningless.
-- **Isotonic Calibration** was selected via 5-fold CV based on superior Brier score (0.0427 vs raw 0.0658) and near-zero Expected Calibration Error (**ECE: 0.0015** vs raw 0.0648).
-- Calibrated probabilities directly represent empirical event probabilities: a 8% predicted risk indicates an ~8 in 100 chance of stroke in a comparable demographic cohort.
+## 5. Young Patient Subgroup Audit (Age < 50)
+
+Across the entire dataset ($N=5,109$), stroke events in patients under 50 are extremely rare (**0.69%** overall prevalence, 20 total cases). However, risk rises monotonically with compounding vascular risk factors (`hypertension + heart_disease + smoker`):
+
+- **Full Dataset ($N = 2,899$ young patients, 20 strokes, 0.69% base rate)**:
+  - `risk_factors_count = 0`: $N = 2,099$, Strokes = $11$ ($0.52\%$, 5.2 per 1,000)
+  - `risk_factors_count = 1`: $N = 761$, Strokes = $8$ ($1.05\%$, 10.5 per 1,000)
+  - `risk_factors_count = 2`: $N = 39$, Strokes = $1$ ($2.56\%$, 25.6 per 1,000)
+  - `risk_factors_count = 3`: $N = 0$, Strokes = $0$
+
+- **Training Partition ($N = 2,316$ young patients, 12 strokes)**:
+  - `RFC = 0`: $N = 1,687$, Strokes = $7$ ($0.41\%$)
+  - `RFC = 1`: $N = 594$, Strokes = $4$ ($0.67\%$)
+  - `RFC = 2`: $N = 35$, Strokes = $1$ ($2.86\%$)
+
+- **Held-Out Test Partition ($N = 583$ young patients, 8 strokes)**:
+  - `RFC = 0`: $N = 412$, Strokes = $4$ ($0.97\%$)
+  - `RFC = 1`: $N = 167$, Strokes = $4$ ($2.40\%$)
+  - `RFC = 2`: $N = 4$, Strokes = $0$ ($0.00\%$)
 
 ---
 
-## 6. Uncertainty Quantification & Conformal Prediction
-- Incorporates **Mondrian Class-Conditional Conformal Prediction** targeting 90% coverage per class.
-- **Empirical Coverage**: Overall = **90.1%**, Class 0 = **90.0%**, Class 1 = **93.0%**.
-- **Ambiguous Prediction Sets**: 34.3% of patients fall into the ambiguous set `{No Stroke, Stroke}` (risk $p \in [0.0260, 0.1237]$). The application explicitly flags these borderline cases as "Ambiguous - Refer to Clinician" rather than forcing a fragile binary decision.
+## 6. Model Zoo Comparison & Glass-Box Models
+
+A controlled 5×5 repeated cross-validation benchmark across 13 model configurations demonstrates **no statistically significant difference** in discriminative ability between gradient boosted trees and interpretable glass-box models:
+
+| Model Architecture | PR-AUC (OOF) | 95% CI PR-AUC | ROC-AUC (OOF) | 95% CI ROC-AUC | DeLong Test vs XGB ($p$-value) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **XGBoost + scale_pos_weight** | 0.1809 | `[0.1473, 0.2296]` | 0.8204 | `[0.7955, 0.8458]` | Reference |
+| **XGBoost (Unweighted)** | 0.1793 | `[0.1485, 0.2228]` | 0.8346 | `[0.8110, 0.8561]` | $p = 0.6887$ |
+| **Balanced Bagging Classifier**| 0.1787 | `[0.1521, 0.2170]` | 0.8415 | `[0.8194, 0.8621]` | $p = 0.5489$ |
+| **LightGBM** | 0.1740 | `[0.1442, 0.2206]` | 0.8153 | `[0.7909, 0.8390]` | $p = 0.8863$ |
+| **HistGradientBoosting** | 0.1729 | `[0.1425, 0.2155]` | 0.8173 | `[0.7913, 0.8412]` | $p = 0.9304$ |
+| **Logistic Regression (L1/L2)**| 0.1635 | `[0.1411, 0.1959]` | 0.8354 | `[0.8116, 0.8558]` | $p = 0.6824$ |
+| **Explainable Boosting Machine (EBM)**| 0.1625 | `[0.1388, 0.1972]` | 0.8339 | `[0.8111, 0.8560]` | $p = 0.7070$ |
+| **CatBoost** | 0.1509 | `[0.1277, 0.1795]` | 0.8177 | `[0.7931, 0.8389]` | $p = 0.9400$ |
+| **XGBoost + SMOTE** | 0.1373 | `[0.1161, 0.1699]` | 0.8038 | `[0.7794, 0.8277]` | $p = 0.6540$ |
+
+**Key Takeaways**:
+1. Confidence intervals for PR-AUC heavily overlap across all competitive algorithms (XGBoost 0.181, LightGBM 0.174, Logistic Regression 0.164, EBM 0.163).
+2. DeLong test $p$-values against XGBoost are all $\gg 0.05$, confirming that no single model is statistically superior.
+3. Simpler glass-box models (EBM and Logistic Regression) achieve comparable discriminative performance while offering direct, unapproximated transparency.
 
 ---
 
-## 7. Subgroup Fairness & Equalized Odds Audit
-
-Evaluated out-of-fold at the operating threshold `0.0826`:
-
-| Subgroup | Sample Size ($N$) | Positives ($N_{pos}$) | Prevalence | Recall (TPR) | 95% CI Recall | False Positive Rate (FPR) | Flag Rate |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Age < 40** | 1,466 | 2 | 0.14% | 50.0% | `[0.0%, 100.0%]` | 1.8% | 1.9% |
-| **Age 40–60** | 1,698 | 51 | 3.00% | 49.0% | `[35.3%, 62.7%]` | 17.1% | 18.0% |
-| **Age > 60** | 923 | 146 | 15.82% | 77.4% | `[70.5%, 83.6%]` | 57.7% | 60.8% |
-| **Gender: Female** | 2,410 | 113 | 4.69% | 75.2% | `[67.3%, 82.3%]` | 22.9% | 25.4% |
-| **Gender: Male** | 1,677 | 86 | 5.13% | 60.5% | `[50.0%, 70.9%]` | 22.1% | 24.1% |
-
-### Fairness Audit Findings:
-- **Gender Equalized Odds**: FPR is well-balanced across genders (Female: 22.9%, Male: 22.1%, gap = **0.008**). However, recall is higher in females (75.2% vs 60.5%, TPR gap = **0.148**).
-- **Age Disparity**: Stroke prevalence in patients under 40 is extremely low (0.14%, only 2 positive events in training data). Confidence intervals for young patient recall span the entire range `[0%, 100%]`. Clinicians must be aware that the statistical power for detecting strokes in patients under 40 is severely limited.
-
----
-
-## 8. Limitations & Known Biases
-1. **Low Positive Event Count**: The entire dataset contains only 249 stroke cases. The held-out test partition contains only 50 positive cases, resulting in wide confidence intervals (±6–8% on recall).
-2. **Single-Source Synthetic / Survey Risk**: Kaggle healthcare stroke dataset provenance is unverified with unknown sampling frames. True population clinical prevalence differs from hospital cohorts.
-3. **Missing BMI Values**: 201 missing BMI values were imputed with training median plus an explicit `bmi_missing` indicator.
-4. **Smoking Unknowns**: 1,544 patients have "Unknown" smoking status, retained as a distinct categorical level rather than imputed.
-5. **No External Validation**: The pipeline has not been validated on an external hospital EHR dataset. External validation (e.g. BRFSS survey) is detailed in Phase 9.
-
----
-
-## 9. Ethical & Clinical Considerations
-- High recall triage models intentionally generate False Positives (in this model, 229 false positives across 1,022 test patients, NNS = 8.4). 
-- In clinical triage, False Positives trigger safe, non-invasive physical follow-ups (e.g., blood pressure check, carotid Doppler ultrasound, dietary review). False Negatives (missed strokes), by contrast, can lead to preventable death or irreversible neurologic deficit.
-- The model's threshold was derived using a 10:1 clinical cost ratio to balance these competing harms transparently.
+## 7. Limitations & Honest Methodological Disclosures
+1. **Low Positive Sample Size**: With only 249 positive stroke cases in total and 50 in the test set, metrics carry an unavoidable ±6–8% margin of error.
+2. **False Alarm Reduction is Threshold-Driven**: The drop in false alarms from 372 to 229 (or 293) reflects the shift in the decision operating point, not inherent algorithmic superiority.
+3. **External Validation Constraint (BRFSS Limitation)**: External validation on the CDC Behavioral Risk Factor Surveillance System (BRFSS) was omitted because BRFSS lacks serum glucose measurement (`avg_glucose_level`), exact employment categories (`work_type`), and geographic dwelling designation (`Residence_type`), and relies strictly on telephone self-report rather than EHR clinical records.
