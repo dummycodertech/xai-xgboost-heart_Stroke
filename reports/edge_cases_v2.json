@@ -1,0 +1,745 @@
+{
+  "operating_threshold": 0.08259259259259258,
+  "near_threshold_band": [
+    0.06759259259259258,
+    0.09759259259259258
+  ],
+  "false_positives": [
+    {
+      "index": 352,
+      "case_type": "false_positive",
+      "calibrated_prob": 0.619,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 80.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Govt_job",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 84.86,
+        "bmi": NaN,
+        "smoking_status": "Unknown"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": 2.2867
+        },
+        {
+          "feature": "num__bmi_missing",
+          "shap_value": 1.3102
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": 0.7998
+        }
+      ]
+    },
+    {
+      "index": 3906,
+      "case_type": "false_positive",
+      "calibrated_prob": 0.6011,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 71.0,
+        "hypertension": 0,
+        "heart_disease": 1,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 215.72,
+        "bmi": 39.2,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -1.959
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": 0.9579
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 0.9405
+        }
+      ]
+    },
+    {
+      "index": 2433,
+      "case_type": "false_positive",
+      "calibrated_prob": 0.5969,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 71.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 214.77,
+        "bmi": NaN,
+        "smoking_status": "Unknown"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi_missing",
+          "shap_value": 1.7736
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 1.0624
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": 0.6111
+        }
+      ]
+    },
+    {
+      "index": 606,
+      "case_type": "false_positive",
+      "calibrated_prob": 0.4599,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 63.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 199.14,
+        "bmi": 28.5,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": 0.9744
+        },
+        {
+          "feature": "cat__smoking_status_formerly smoked",
+          "shap_value": 0.2971
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": 0.2832
+        }
+      ]
+    },
+    {
+      "index": 372,
+      "case_type": "false_positive",
+      "calibrated_prob": 0.4293,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 80.0,
+        "hypertension": 0,
+        "heart_disease": 1,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 125.32,
+        "bmi": 32.9,
+        "smoking_status": "Unknown"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": 2.6757
+        },
+        {
+          "feature": "cat__smoking_status_Unknown",
+          "shap_value": -1.1512
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": -1.0525
+        }
+      ]
+    }
+  ],
+  "false_negatives": [
+    {
+      "index": 1166,
+      "case_type": "false_negative",
+      "calibrated_prob": 0.0,
+      "actual_stroke": 1,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 43.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Self-employed",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 143.43,
+        "bmi": 45.9,
+        "smoking_status": "Unknown"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": 3.6298
+        },
+        {
+          "feature": "num__age",
+          "shap_value": -3.5888
+        },
+        {
+          "feature": "cat__work_type_Self-employed",
+          "shap_value": 0.6904
+        }
+      ]
+    },
+    {
+      "index": 2083,
+      "case_type": "false_negative",
+      "calibrated_prob": 0.0,
+      "actual_stroke": 1,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 38.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "No",
+        "work_type": "Self-employed",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 82.28,
+        "bmi": 24.0,
+        "smoking_status": "formerly smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": -4.9033
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": 3.5597
+        },
+        {
+          "feature": "cat__ever_married_No",
+          "shap_value": 1.6272
+        }
+      ]
+    },
+    {
+      "index": 840,
+      "case_type": "false_negative",
+      "calibrated_prob": 0.0041,
+      "actual_stroke": 1,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 39.0,
+        "hypertension": 1,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 58.09,
+        "bmi": 39.2,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": -3.6651
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": 2.0856
+        },
+        {
+          "feature": "num__risk_factors_count",
+          "shap_value": 2.0448
+        }
+      ]
+    },
+    {
+      "index": 1974,
+      "case_type": "false_negative",
+      "calibrated_prob": 0.0132,
+      "actual_stroke": 1,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 54.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 96.97,
+        "bmi": 29.1,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "cat__smoking_status_smokes",
+          "shap_value": 0.5764
+        },
+        {
+          "feature": "num__age",
+          "shap_value": -0.4672
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": 0.379
+        }
+      ]
+    },
+    {
+      "index": 241,
+      "case_type": "false_negative",
+      "calibrated_prob": 0.0145,
+      "actual_stroke": 1,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 45.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 224.1,
+        "bmi": 56.6,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": -2.6131
+        },
+        {
+          "feature": "num__bmi",
+          "shap_value": 2.4735
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": 1.6613
+        }
+      ]
+    }
+  ],
+  "near_threshold": [
+    {
+      "index": 12,
+      "case_type": "near_threshold",
+      "calibrated_prob": 0.0837,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 70.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 64.41,
+        "bmi": 29.4,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -3.2018
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": -1.5765
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 0.5333
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "case_type": "near_threshold",
+      "calibrated_prob": 0.0739,
+      "actual_stroke": 0,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 72.0,
+        "hypertension": 1,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 105.51,
+        "bmi": 32.7,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -2.5595
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 0.8732
+        },
+        {
+          "feature": "cat__Residence_type_Rural",
+          "shap_value": -0.6192
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "case_type": "near_threshold",
+      "calibrated_prob": 0.0964,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 45.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Govt_job",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 79.47,
+        "bmi": 28.1,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": -3.6974
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": -0.7997
+        },
+        {
+          "feature": "cat__gender_Female",
+          "shap_value": 0.3341
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "case_type": "near_threshold",
+      "calibrated_prob": 0.073,
+      "actual_stroke": 0,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 67.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Self-employed",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 110.42,
+        "bmi": 24.9,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -3.575
+        },
+        {
+          "feature": "num__risk_factors_count",
+          "shap_value": -0.5189
+        },
+        {
+          "feature": "num__bmi_missing",
+          "shap_value": -0.2843
+        }
+      ]
+    },
+    {
+      "index": 56,
+      "case_type": "near_threshold",
+      "calibrated_prob": 0.0936,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 75.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 106.33,
+        "bmi": 27.8,
+        "smoking_status": "Unknown"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -2.5263
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 1.2643
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": -0.6938
+        }
+      ]
+    }
+  ],
+  "conformal_ambiguous": [
+    {
+      "index": 5,
+      "case_type": "conformal_ambiguous",
+      "calibrated_prob": 0.0406,
+      "actual_stroke": 0,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 48.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Govt_job",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 76.58,
+        "bmi": 27.4,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__age",
+          "shap_value": -3.5931
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": -1.0678
+        },
+        {
+          "feature": "cat__gender_Female",
+          "shap_value": -0.622
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "case_type": "conformal_ambiguous",
+      "calibrated_prob": 0.1086,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 63.0,
+        "hypertension": 1,
+        "heart_disease": 1,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 150.45,
+        "bmi": 44.5,
+        "smoking_status": "formerly smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -2.085
+        },
+        {
+          "feature": "num__risk_factors_count",
+          "shap_value": 0.8653
+        },
+        {
+          "feature": "bin__heart_disease",
+          "shap_value": -0.5598
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "case_type": "conformal_ambiguous",
+      "calibrated_prob": 0.0837,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 70.0,
+        "hypertension": 0,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 64.41,
+        "bmi": 29.4,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -3.2018
+        },
+        {
+          "feature": "num__avg_glucose_level",
+          "shap_value": -1.5765
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 0.5333
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "case_type": "conformal_ambiguous",
+      "calibrated_prob": 0.0739,
+      "actual_stroke": 0,
+      "predicted_binary": 0,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Female",
+        "age": 72.0,
+        "hypertension": 1,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Urban",
+        "avg_glucose_level": 105.51,
+        "bmi": 32.7,
+        "smoking_status": "never smoked"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -2.5595
+        },
+        {
+          "feature": "num__age",
+          "shap_value": 0.8732
+        },
+        {
+          "feature": "cat__Residence_type_Rural",
+          "shap_value": -0.6192
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "case_type": "conformal_ambiguous",
+      "calibrated_prob": 0.1213,
+      "actual_stroke": 0,
+      "predicted_binary": 1,
+      "conformal_set": [
+        0,
+        1
+      ],
+      "patient_features": {
+        "gender": "Male",
+        "age": 56.0,
+        "hypertension": 1,
+        "heart_disease": 0,
+        "ever_married": "Yes",
+        "work_type": "Private",
+        "Residence_type": "Rural",
+        "avg_glucose_level": 206.66,
+        "bmi": 21.9,
+        "smoking_status": "smokes"
+      },
+      "top_shap_factors": [
+        {
+          "feature": "num__bmi",
+          "shap_value": -3.7715
+        },
+        {
+          "feature": "num__age",
+          "shap_value": -1.8715
+        },
+        {
+          "feature": "num__risk_factors_count",
+          "shap_value": 0.6745
+        }
+      ]
+    }
+  ]
+}

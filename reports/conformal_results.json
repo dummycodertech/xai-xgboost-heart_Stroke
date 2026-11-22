@@ -1,0 +1,21 @@
+{
+  "alpha": 0.1,
+  "target_coverage": 0.9,
+  "q0_cutoff": 0.1236669272184372,
+  "q1_cutoff": 0.9740383878745364,
+  "p_threshold_for_label_0": 0.1236669272184372,
+  "p_threshold_for_label_1": 0.02596161212546355,
+  "empirical_overall_coverage": 0.901174168297456,
+  "empirical_class_0_coverage": 0.8996913580246914,
+  "empirical_class_1_coverage": 0.93,
+  "n_evaluated": 2044,
+  "set_composition": {
+    "ambiguous_refer_both": 701,
+    "pct_ambiguous": 0.3429549902152642,
+    "confidently_no_stroke_only_0": 1099,
+    "pct_only_0": 0.5376712328767124,
+    "confidently_stroke_only_1": 244,
+    "pct_only_1": 0.11937377690802348,
+    "empty": 0
+  }
+}

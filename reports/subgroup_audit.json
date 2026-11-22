@@ -1,0 +1,104 @@
+{
+  "operating_threshold": 0.08259259259259258,
+  "subgroups": {
+    "Age < 40": {
+      "n_patients": 1735,
+      "n_positives": 3,
+      "prevalence": 0.001729106628242075,
+      "recall": 0.0,
+      "recall_ci_95": [
+        0.0,
+        0.0
+      ],
+      "precision": 0.0,
+      "precision_ci_95": [
+        0.0,
+        0.0
+      ],
+      "fpr": 0.006928406466512702,
+      "flag_rate": 0.0069164265129683,
+      "ece": 0.007159790941536187
+    },
+    "Age 40-60": {
+      "n_patients": 1306,
+      "n_positives": 57,
+      "prevalence": 0.043644716692189896,
+      "recall": 0.42105263157894735,
+      "recall_ci_95": [
+        0.30657894736842106,
+        0.5614035087719298
+      ],
+      "precision": 0.08823529411764706,
+      "precision_ci_95": [
+        0.06351809358020784,
+        0.11624959091121603
+      ],
+      "fpr": 0.19855884707766214,
+      "flag_rate": 0.2082695252679939,
+      "ece": 0.007597690912697139
+    },
+    "Age > 60": {
+      "n_patients": 1046,
+      "n_positives": 139,
+      "prevalence": 0.13288718929254303,
+      "recall": 0.8273381294964028,
+      "recall_ci_95": [
+        0.762589928057554,
+        0.8848920863309353
+      ],
+      "precision": 0.15796703296703296,
+      "precision_ci_95": [
+        0.1448535736135603,
+        0.16971515931766976
+      ],
+      "fpr": 0.6758544652701213,
+      "flag_rate": 0.6959847036328872,
+      "ece": 0.023508984716107528
+    },
+    "Gender: Female": {
+      "n_patients": 2397,
+      "n_positives": 112,
+      "prevalence": 0.046725073007926575,
+      "recall": 0.6339285714285714,
+      "recall_ci_95": [
+        0.5535714285714286,
+        0.7232142857142857
+      ],
+      "precision": 0.11993243243243243,
+      "precision_ci_95": [
+        0.10414400848964608,
+        0.13720645563698736
+      ],
+      "fpr": 0.22800875273522975,
+      "flag_rate": 0.24697538589904047,
+      "ece": 0.00878726915619289
+    },
+    "Gender: Male": {
+      "n_patients": 1690,
+      "n_positives": 87,
+      "prevalence": 0.051479289940828406,
+      "recall": 0.7816091954022989,
+      "recall_ci_95": [
+        0.7011494252873564,
+        0.8620689655172413
+      ],
+      "precision": 0.1619047619047619,
+      "precision_ci_95": [
+        0.1438048028200044,
+        0.18171966180267216
+      ],
+      "fpr": 0.2195882719900187,
+      "flag_rate": 0.2485207100591716,
+      "ece": 0.012278686959333053
+    }
+  },
+  "equalized_odds_gender_gap": {
+    "tpr_gap": 0.1476806239737275,
+    "fpr_gap": 0.00842048074521104,
+    "tpr_female": 0.6339285714285714,
+    "tpr_male": 0.7816091954022989,
+    "fpr_female": 0.22800875273522975,
+    "fpr_male": 0.2195882719900187
+  },
+  "caution_note": "Caution: Subgroup sizes vary significantly. In particular, age < 40 has very few stroke positives (n=2), leading to extremely wide confidence intervals. Findings must be interpreted with clinical humility."
+}
