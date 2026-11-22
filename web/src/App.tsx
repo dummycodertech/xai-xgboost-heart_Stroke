@@ -410,10 +410,10 @@ export default function App() {
                   <Waterfall r={r} />
 
                   <h3>
-                    Local surrogate rules <small>units: calibrated probability points (% risk)</small>
+                    Local surrogate (LIME-style) rules <small>units: calibrated probability points (% risk)</small>
                   </h3>
                   <p className="mut" style={{ fontSize: '0.8rem', margin: '4px 0 10px' }}>
-                    Local linear rules estimate the direct change in calibrated risk probability around this patient's profile. Agrees with SHAP on {agree} of 3 top factors.
+                    Local surrogate (LIME-style) linear rules estimate the direct change in calibrated risk probability around this patient's profile. Agrees with SHAP on {agree} of 3 top factors.
                   </p>
                   <Lime r={r} />
 

@@ -30,7 +30,7 @@ with open(ARTIFACTS_DIR / "background_quantiles.json") as f:
 
 RAW_FEATURE_ORDER = [
     "age", "avg_glucose_level", "bmi", "gender", "hypertension",
-    "heart_disease", "ever_married", "work_type", "Residence_type", "smoking_status"
+    "heart_disease", "combined_risk_factors", "ever_married", "work_type", "Residence_type", "smoking_status"
 ]
 
 
@@ -39,7 +39,14 @@ def compute_5fold_treeshap(
     input_df: pd.DataFrame,
     patient_dict: dict,
 ) -> tuple[float, float, list[dict]]:
-    """Compute exact TreeSHAP attributions averaged across all 5 fold boosters."""
+    """Compute exact TreeSHAP attributions averaged across all 5 fold boosters.
+    
+    Averages contributions, base values, and raw margins across the 5 fold boosters
+    inside the CalibratedClassifierCV. Preserves exact additivity:
+    avg_base_value + sum(contributions) == avg_raw_margin.
+    The engineered interaction feature `risk_factors_count` is presented as its own
+    row ("combined_risk_factors") rather than split arbitrarily across clinical drivers.
+    """
     all_phi = []
     raw_margins = []
     feature_names_out = None
@@ -83,10 +90,7 @@ def compute_5fold_treeshap(
             agg_dict["bmi"] += val
             matched = True
         elif "risk_factors_count" in col_name:
-            third = val / 3.0
-            agg_dict["hypertension"] += third
-            agg_dict["heart_disease"] += third
-            agg_dict["smoking_status"] += third
+            agg_dict["combined_risk_factors"] += val
             matched = True
         else:
             for rf in RAW_FEATURE_ORDER:
@@ -97,7 +101,7 @@ def compute_5fold_treeshap(
 
         if not matched:
             # Fallback for any other unmatched feature
-            agg_dict[RAW_FEATURE_ORDER[0]] += val
+            agg_dict["combined_risk_factors"] += val
 
     # Format values for display
     def format_val(f, v):
@@ -109,13 +113,21 @@ def compute_5fold_treeshap(
             return f"{v:.1f}"
         if f in ["hypertension", "heart_disease"]:
             return "Yes" if v == 1 else "No"
+        if f == "combined_risk_factors":
+            rfc = (
+                int(patient_dict["hypertension"])
+                + int(patient_dict["heart_disease"])
+                + (1 if patient_dict["smoking_status"] in ["smokes", "formerly smoked"] else 0)
+            )
+            return f"{rfc} active"
         return str(v)
 
     shap_items = []
     for f in RAW_FEATURE_ORDER:
+        val_to_format = patient_dict.get(f, 0)
         shap_items.append({
             "feature": f,
-            "value": format_val(f, patient_dict[f]),
+            "value": format_val(f, val_to_format),
             "contribution": float(round(agg_dict.get(f, 0.0), 3)),
         })
 
@@ -130,7 +142,7 @@ def compute_local_surrogate(
     n_samples: int = 500,
     seed: int = 42,
 ) -> list[dict]:
-    """Compute local surrogate linear model in calibrated probability units."""
+    """Compute local surrogate (LIME-style) linear model in calibrated probability units."""
     rng = np.random.default_rng(seed)
 
     age_val = float(patient_dict["age"])

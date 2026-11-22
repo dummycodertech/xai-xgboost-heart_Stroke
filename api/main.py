@@ -193,7 +193,7 @@ async def health_check():
 
 @app.get("/meta", summary="Model metadata, operating thresholds, and metrics")
 async def get_metadata():
-    """Return evaluated model metadata, thresholds, and 95% bootstrap CIs from reports/final_test_report.json."""
+    """Return evaluated model metadata, thresholds, and 95% bootstrap CIs from api/artifacts/meta.json."""
     if "meta" not in STATE:
         return JSONResponse(status_code=503, content={"error": "Model metadata not ready."})
     return STATE["meta"]
@@ -202,7 +202,7 @@ async def get_metadata():
 @app.post("/predict", response_model=PredictionResponse, summary="Predict stroke risk and compute explanations")
 @limiter.limit("60/minute")
 async def predict_stroke_risk(patient: PatientInput, request: Request):
-    """Calibrated probability triage scoring with exact 5-fold TreeSHAP and human-readable local surrogate."""
+    """Calibrated probability triage scoring with exact 5-fold TreeSHAP and local surrogate (LIME-style)."""
     if "cal_pipe" not in STATE or "meta" not in STATE:
         return JSONResponse(status_code=503, content={"error": "Service warming up, please retry in 5 seconds."})
 
@@ -236,8 +236,8 @@ async def predict_stroke_risk(patient: PatientInput, request: Request):
     # 3. Exact 5-fold TreeSHAP on raw margin log-odds
     base_val, raw_margin, shap_items = compute_5fold_treeshap(cal_pipe, input_df, patient_dict)
 
-    # 4. Human-readable local surrogate in calibrated probability points
-    lime_items = compute_local_surrogate(cal_pipe, patient_dict, n_samples=500)
+    # 4. Human-readable local surrogate (LIME-style) in calibrated probability points
+    surrogate_rules = compute_local_surrogate(cal_pipe, patient_dict, n_samples=500)
 
     return PredictionResponse(
         probability=round(prob, 4),
@@ -247,5 +247,6 @@ async def predict_stroke_risk(patient: PatientInput, request: Request):
         base_value=round(base_val, 3),
         raw_margin=round(raw_margin, 3),
         shap=shap_items,
-        lime=lime_items,
+        local_surrogate=surrogate_rules,
+        lime=surrogate_rules,
     )

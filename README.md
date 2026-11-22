@@ -966,7 +966,7 @@ In addition to the Streamlit triage dashboard (`app.py`), the project includes a
 │        Vercel (React 18 + Three.js)          │        │        Render Free Tier (FastAPI Service)    │
 │  - Interactive 3D Parametric Heart Canvas    │  HTTP  │  - Python 3.12+ (Uvicorn ASGI)               │
 │  - Dynamic Triage Strategy Switcher          │───────>│  - 5-Fold TreeSHAP Log-Odds Attribution      │
-│  - Live SHAP Waterfall & Local Surrogates    │        │  - In-House Weighted Ridge Local Surrogate   │
+│  - Live SHAP Waterfall & Local Surrogates    │        │  - In-House Local Surrogate (LIME-Style)     │
 │  - Zero PII Stored (No LocalStorage/Cookies) │        │  - Anti-Spoofed IP Rate Limiter & Scoped CORS│
 └──────────────────────────────────────────────┘        └──────────────────────────────────────────────┘
 ```
@@ -976,9 +976,10 @@ In addition to the Streamlit triage dashboard (`app.py`), the project includes a
 1. **Exact 5-Fold TreeSHAP in Raw Log-Odds**:
    - `models/calibrated_pipeline.joblib` contains an ensemble of 5 cross-validation estimators. SHAP attributions are computed by running native TreeSHAP across all 5 boosters, averaging margins, base values, and contributions.
    - Attributions are strictly additive: $\text{base\_value} + \sum \phi_i = \text{raw\_margin}$ within numerical precision ($< 10^{-6}$).
+   - The engineered interaction feature `risk_factors_count` is presented as its own independent row ("combined risk factors") rather than arbitrarily split across clinical inputs, preserving exact additivity.
    - The UI explicitly clarifies that SHAP bars explain the raw model score (log-odds), while the headline probability is isotonic-calibrated.
-2. **Lean In-House Local Surrogate (LIME Alternative)**:
-   - To stay comfortably under Render's 512 MB memory limit, a custom weighted Ridge local surrogate was developed. It perturbs inputs locally and reports risk impact directly in **calibrated probability percentage points** in $< 30\text{ ms}$, avoiding heavyweight dependencies.
+2. **Lean In-House Local Surrogate (LIME-Style)**:
+   - To stay comfortably under Render's 512 MB memory limit, a custom local surrogate (LIME-style) was developed. It perturbs inputs locally and reports risk impact directly in **calibrated probability percentage points** in $< 30\text{ ms}$, avoiding heavyweight dependencies.
 3. **Anti-Spoofing Rate Limiting & Zero-PII Security**:
    - IP rate limiting (`slowapi`) enforces `TRUSTED_PROXIES` validation: `X-Forwarded-For` headers are only trusted from declared reverse proxies, preventing client header spoofing.
    - Requests and responses containing patient features are **never logged** (`api/main.py` sanitizes access logs to path and status code only).

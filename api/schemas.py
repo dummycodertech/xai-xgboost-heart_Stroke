@@ -31,7 +31,7 @@ class ShapItem(BaseModel):
     contribution: float
 
 
-class LimeItem(BaseModel):
+class LocalSurrogateItem(BaseModel):
     rule: str
     weight: float
 
@@ -44,9 +44,16 @@ class PredictionResponse(BaseModel):
     base_value: float
     raw_margin: float
     shap: list[ShapItem]
-    lime: list[LimeItem]
+    local_surrogate: list[LocalSurrogateItem] = Field(
+        ...,
+        description="Local surrogate (LIME-style) linear rules in calibrated probability points",
+    )
+    lime: list[LocalSurrogateItem] = Field(
+        ...,
+        description="Alias for local_surrogate (LIME-style) rules",
+    )
     units: dict[str, str] = {
         "shap": "log-odds (raw model score)",
-        "lime": "calibrated probability points",
+        "local_surrogate (LIME-style)": "calibrated probability points",
         "probability": "calibrated risk percentage",
     }

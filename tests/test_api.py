@@ -109,13 +109,18 @@ def test_treeshap_additivity_and_raw_margin(client, valid_patient_payload):
     raw_margin = data["raw_margin"]
     shap_items = data["shap"]
 
+    # Verify combined_risk_factors is present as its own independent row
+    feature_names = [item["feature"] for item in shap_items]
+    assert "combined_risk_factors" in feature_names
+
     total_contribs = sum(item["contribution"] for item in shap_items)
     # Assert additivity: base_value + sum(contributions) == raw_margin within 1e-2 due to rounding to 3 decimals
     assert (base_val + total_contribs) == pytest.approx(raw_margin, abs=5e-2)
 
-    # Units check
+    # Explainer fields & units check
+    assert "local_surrogate" in data
     assert data["units"]["shap"] == "log-odds (raw model score)"
-    assert data["units"]["lime"] == "calibrated probability points"
+    assert data["units"]["local_surrogate (LIME-style)"] == "calibrated probability points"
 
 
 def test_validation_errors_never_echo_patient_inputs(client, valid_patient_payload):

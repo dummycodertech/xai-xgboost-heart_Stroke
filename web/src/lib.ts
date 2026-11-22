@@ -19,8 +19,9 @@ export type Result = {
   base_value: number
   raw_margin: number
   shap: { feature: string; value: string; contribution: number }[]
+  local_surrogate?: { rule: string; weight: number }[]
   lime: { rule: string; weight: number }[]
-  units?: { shap: string; lime: string; probability: string }
+  units?: Record<string, string>
   demo: boolean
 }
 
@@ -136,12 +137,14 @@ export function warmupService() {
 // DEMO ONLY: additive toy model used strictly when VITE_API_URL is unset.
 function mock(p: Patient, opKey: string): Result {
   const smoke: Record<string, number> = { smokes: 0.35, 'formerly smoked': 0.25, 'never smoked': -0.1, Unknown: 0 }
+  const rfc = (p.hypertension ? 1 : 0) + (p.heart ? 1 : 0) + (['smokes', 'formerly smoked'].includes(p.smoking) ? 1 : 0)
   const c: [string, string, number][] = [
     ['age', `${p.age}`, 0.06 * (p.age - 45)],
     ['avg_glucose_level', `${p.glucose} mg/dL`, Math.max(-0.4, 0.012 * (p.glucose - 105))],
     ['bmi', `${p.bmi}`, 0.01 * (p.bmi - 27)],
     ['hypertension', p.hypertension ? 'Yes' : 'No', p.hypertension ? 0.7 : -0.1],
     ['heart_disease', p.heart ? 'Yes' : 'No', p.heart ? 0.8 : -0.05],
+    ['combined_risk_factors', `${rfc} active`, rfc >= 2 ? 0.45 : rfc === 1 ? 0.15 : -0.2],
     ['smoking_status', p.smoking, smoke[p.smoking] ?? 0],
     ['ever_married', p.married, p.married === 'Yes' ? 0.1 : -0.1],
     ['work_type', p.work, p.work === 'children' ? -0.8 : p.work === 'Self-employed' ? 0.1 : 0],
@@ -153,6 +156,7 @@ function mock(p: Patient, opKey: string): Result {
     { rule: `age ${p.age > 61 ? '> 61' : '<= 61'}`, weight: p.age > 61 ? 0.08 : -0.04 },
     { rule: `avg_glucose_level ${p.glucose > 114 ? '> 114' : '<= 114'}`, weight: p.glucose > 114 ? 0.06 : -0.02 },
     { rule: `hypertension = ${p.hypertension ? 'Yes' : 'No'}`, weight: p.hypertension ? 0.05 : -0.01 },
+    { rule: `combined_risk_factors ${rfc >= 2 ? '>= 2' : '< 2'}`, weight: rfc >= 2 ? 0.04 : -0.02 },
     { rule: `smoking_status = ${p.smoking}`, weight: smoke[p.smoking] ? 0.03 : -0.01 },
   ]
   const probability = 1 / (1 + Math.exp(-total))
@@ -165,10 +169,11 @@ function mock(p: Patient, opKey: string): Result {
     base_value: base,
     raw_margin: total,
     shap,
+    local_surrogate: lime,
     lime,
     units: {
       shap: 'log-odds (raw model score)',
-      lime: 'calibrated probability points',
+      'local_surrogate (LIME-style)': 'calibrated probability points',
       probability: 'calibrated risk percentage',
     },
     demo: true,
