@@ -1,0 +1,26 @@
+{
+  "chosen_calibration_method": "isotonic",
+  "calibration_metrics": {
+    "brier_raw": 0.06576832271276399,
+    "brier_iso": 0.042664010516841655,
+    "brier_sig": 0.04394553244958763,
+    "logloss_raw": 0.26938091939521264,
+    "logloss_iso": 0.17574216527280345,
+    "logloss_sig": 0.17816185882086372,
+    "ece_raw": 0.06482822081134125,
+    "ece_iso": 0.0014814932701311956,
+    "ece_sig": 0.0031360230137736744
+  },
+  "threshold_selection": {
+    "cost_ratio_5": 0.13654654654654655,
+    "cost_ratio_10": 0.08259259259259258,
+    "cost_ratio_20": 0.05218218218218218,
+    "cost_ratio_50": 0.013923923923923925,
+    "f2_optimal": 0.08063063063063063,
+    "min_recall_80pct": 0.058068068068068066,
+    "legacy_v1": 0.15
+  },
+  "chosen_threshold": 0.08259259259259258,
+  "chosen_threshold_rule": "cost_ratio_10",
+  "note": "Threshold and calibration method selected on OOF training-set probabilities only. Test set NOT touched. Chosen threshold provenance: cost model FN/FP ratio = 10 applied to OOF calibrated probabilities."
+}

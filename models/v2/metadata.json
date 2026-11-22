@@ -1,5 +1,5 @@
 {
-  "phase": "phase4",
+  "phase": "phase5",
   "n_train": 4087,
   "n_train_pos": 199,
   "scale_pos_weight": 19.537688442211056,
@@ -19,5 +19,11 @@
   "use_monotone_constraints": true,
   "stacking_pr_auc": 0.17588976090597228,
   "seed": 42,
-  "note": "Hyperparameters chosen by OOF PR-AUC on training data only. Monotone constraints chosen if constrained >= unconstrained PR-AUC. Stacking evaluated for comparison \u2014 final model is single XGBoost pipeline. Test set NOT evaluated."
+  "note": "Hyperparameters chosen by OOF PR-AUC on training data only. Monotone constraints chosen if constrained >= unconstrained PR-AUC. Stacking evaluated for comparison \u2014 final model is single XGBoost pipeline. Test set NOT evaluated.",
+  "calibration_method": "isotonic",
+  "chosen_threshold": 0.08259259259259258,
+  "chosen_threshold_rule": "cost_ratio_10",
+  "threshold_provenance": "Selected via cost model (FN/FP ratio = 10) on OOF calibrated training-set probabilities. Test set was NOT used for threshold selection.",
+  "brier_before_calibration": 0.06576832271276399,
+  "brier_after_calibration": 0.042664010516841655
 }
