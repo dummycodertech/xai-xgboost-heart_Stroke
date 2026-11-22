@@ -6,8 +6,10 @@ Zero echo of patient input values in validation error responses (privacy require
 """
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
+
 
 class PatientInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -22,7 +24,7 @@ class PatientInput(BaseModel):
     work_type: Literal["Private", "Self-employed", "Govt_job", "children", "Never_worked"]
     Residence_type: Literal["Urban", "Rural"]
     smoking_status: Literal["formerly smoked", "never smoked", "smokes", "Unknown"]
-    operating_point: Optional[Literal["cost_based_10", "min_recall_80pct", "high_precision"]] = "cost_based_10"
+    operating_point: Literal["cost_based_10", "min_recall_80pct", "high_precision"] | None = "cost_based_10"
 
 
 class ShapItem(BaseModel):

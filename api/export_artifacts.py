@@ -9,9 +9,9 @@ Exports lean, self-contained production artifacts into api/artifacts/:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import shutil
-import joblib
+from pathlib import Path
+
 import pandas as pd
 
 from src.pipeline_builder import clean_raw_df

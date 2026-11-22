@@ -5,17 +5,20 @@ Measures cold start time, inference latency, and peak RAM consumption.
 """
 import time
 import tracemalloc
+
 import joblib
 
 tracemalloc.start()
 t0 = time.perf_counter()
 
 from fastapi.testclient import TestClient
-from api.main import app, ARTIFACTS_DIR, STATE
+
+from api.main import ARTIFACTS_DIR, STATE, app
 
 # Lifespan startup simulation
 STATE["cal_pipe"] = joblib.load(ARTIFACTS_DIR / "calibrated_pipeline.joblib")
 import json
+
 with open(ARTIFACTS_DIR / "meta.json") as f:
     STATE["meta"] = json.load(f)
 
@@ -46,7 +49,7 @@ pred_ms = (t_pred1 - t_pred0) * 1000
 
 current_mem, peak_mem = tracemalloc.get_traced_memory()
 
-print(f"BENCHMARK RESULTS:")
+print("BENCHMARK RESULTS:")
 print(f"  Cold-start ready time: {cold_start_ms:.1f} ms ({cold_start_ms/1000:.2f} s)")
 print(f"  Predict latency (5-fold TreeSHAP + Local Surrogate): {pred_ms:.1f} ms")
 print(f"  Current Memory: {current_mem / 1024 / 1024:.1f} MB")

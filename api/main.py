@@ -14,10 +14,9 @@ from __future__ import annotations
 import json
 import logging
 import os
-import re
 import time
-from pathlib import Path
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import joblib
 import pandas as pd
@@ -28,8 +27,8 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from api.schemas import PatientInput, PredictionResponse
 from api.explainer import compute_5fold_treeshap, compute_local_surrogate
+from api.schemas import PatientInput, PredictionResponse
 
 # Configure sanitized logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -44,10 +43,9 @@ STATE = {}
 
 def verify_versions():
     """Fail loudly on startup if core ML packages diverge from artifact provenance."""
-    import xgboost
-    import sklearn
     import joblib as jl
-    import numpy as np
+    import sklearn
+    import xgboost
 
     expected = {
         "xgboost": "3.2.0",

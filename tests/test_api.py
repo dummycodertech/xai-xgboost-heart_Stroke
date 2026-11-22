@@ -12,13 +12,12 @@ Automated test suite for FastAPI service:
 """
 from __future__ import annotations
 
-import pytest
-import numpy as np
-import pandas as pd
 import joblib
+import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 
-from api.main import app, ARTIFACTS_DIR, get_client_ip
+from api.main import ARTIFACTS_DIR, app, get_client_ip
 
 
 @pytest.fixture(scope="module")
