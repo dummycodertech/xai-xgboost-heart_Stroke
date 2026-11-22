@@ -1,0 +1,6 @@
+{
+  "unconstrained_pr_auc": 0.1687361035206711,
+  "constrained_pr_auc": 0.19834351680232803,
+  "delta": 0.029607413281656947,
+  "clinical_rationale": "Stroke risk clinically increases with age and glucose level. Monotone constraints enforce this medical prior, improving interpretability and potentially preventing overfitting on small subgroups where the relationship might appear non-monotone due to noise."
+}

@@ -1,0 +1,18 @@
+{
+  "study_name": "stroke_xgb_prc",
+  "n_trials": 100,
+  "best_pr_auc": 0.21729186712740117,
+  "best_params": {
+    "n_estimators": 100,
+    "max_depth": 8,
+    "learning_rate": 0.20599040021744863,
+    "subsample": 0.8328093172327441,
+    "colsample_bytree": 0.5264339437690179,
+    "min_child_weight": 3,
+    "reg_alpha": 0.0019775024394438467,
+    "reg_lambda": 1.4680566587367436,
+    "gamma": 3.221532700599524,
+    "use_monotone_constraints": true
+  },
+  "note": "Selected by OOF PR-AUC on training data only. Test set NOT touched."
+}
