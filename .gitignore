@@ -8,6 +8,12 @@ wheels/
 
 # Virtual environments
 .venv
+# Test & coverage caches
+.pytest_cache/
+.coverage
+catboost_info/
+reports/*.db
+*.zip
 # Ensure Streamlit Cloud gets our artifacts
 !models/
 !data/

@@ -13,12 +13,10 @@ cfg = load_config("configs/custom.yaml")   # override path
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 _DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "configs" / "default.yaml"
 

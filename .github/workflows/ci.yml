@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main, upgrade-rigorous-eval]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --frozen --python ${{ matrix.python-version }} || uv sync --python ${{ matrix.python-version }}
+
+      - name: Lint with ruff
+        run: uv run ruff check src tests
+
+      - name: Run test suite
+        run: uv run pytest tests -v --cov=src
+
+      - name: Fast inference smoke test
+        run: |
+          uv run python -c "
+          import joblib, pandas as pd
+          cal_pipe = joblib.load('models/v2/calibrated_pipeline.joblib')
+          sample = pd.DataFrame([{
+              'age': 67, 'avg_glucose_level': 228.69, 'bmi': 36.6,
+              'gender': 'Male', 'hypertension': 0, 'heart_disease': 1,
+              'ever_married': 'Yes', 'work_type': 'Private',
+              'Residence_type': 'Urban', 'smoking_status': 'formerly smoked'
+          }])
+          prob = cal_pipe.predict_proba(sample)[0][1]
+          print(f'Smoke test OK: predicted risk = {prob:.4f}')
+          assert 0.0 <= prob <= 1.0
+          "

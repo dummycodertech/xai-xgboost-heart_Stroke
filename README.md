@@ -38,8 +38,8 @@
 | **Deployment** | Local Streamlit runtime / Configured for Streamlit Community Cloud (model artifacts and datasets explicitly un-ignored in `.gitignore`). |
 | **Tech Stack** | Python 3.14 / 3.11+, XGBoost 3.2.0, SHAP 0.51.0, LIME 0.2.0.1, Scikit-Learn 1.8.0, Dill 0.4.1, Pandas 3.0.3, Streamlit 1.57.0, UV package manager. |
 | **Role & Scope** | Built by **Yagas Vashist** ([dummycodertech](https://github.com/dummycodertech)). Implemented complete pipeline: data ingestion, stratified preprocessing, hyperparameterized model training, XAI artifact serialization, edge-case mining, and Streamlit user interface. |
-| **Duration / Date** | Initial Release: May 19, 2026. |
-| **Key Measured Results** | **80.0% Stroke Recall (40/50 test strokes detected)** at **ROC-AUC: 0.8073**, **PR-AUC: 0.1691**, with false negatives restricted to 10 cases across 1,022 held-out test records (clinical decision threshold = 0.15). |
+| **Duration / Date** | Initial Release: May 19, 2026. Rigorous Upgrade (v2): November 2026. |
+| **Key Measured Results** | **v2 Rigorous Pipeline (Calibrated + OOF Cost Threshold)**: **62.0% Stroke Recall (31/50 test strokes detected, 95% CI: [48.0%, 76.0%])**, **PR-AUC: 0.1822 [0.1260, 0.2875]**, **ROC-AUC: 0.7900 [0.7184, 0.8477]**, **Brier Score: 0.0435 [0.0415, 0.0454]**, **Precision: 11.9% [9.5%, 14.4%]**, **NNS: 8.4** (Operating threshold $\tau = 0.0826$ selected out-of-fold via cost ratio 10:1; zero test leakage).<br>*(Legacy v1 Baseline: 80.0% Recall (40/50), ROC-AUC: 0.8073, PR-AUC: 0.1691, threshold 0.15 chosen via test-set peeking).* |
 | **Repository** | [https://github.com/dummycodertech/xai-xgboost-heart_Stroke](https://github.com/dummycodertech/xai-xgboost-heart_Stroke) |
 
 ---
@@ -314,12 +314,12 @@ Standard binary classifiers apply $\hat{y} = \mathbb{I}(P(y=1 \mid x) \ge 0.50)$
 
 | Decision | Alternatives Considered | Why This Choice Was Made | Accepted Trade-off |
 | :--- | :--- | :--- | :--- |
-| **1. Native Cost-Sensitive Learning (`scale_pos_weight`) over SMOTE** | SMOTE (Synthetic Minority Over-sampling), Random Undersampling, ADASYN. | SMOTE generates synthetic feature interpolations along $k$-nearest neighbors. In clinical EHR data, stroke strongly correlates with age; SMOTE primarily synthesized elderly patients, failing to teach the model that young individuals with severe lifestyle risks (smoking, hypertension) can have strokes. `scale_pos_weight = 19.54` mathematically forces gradient updates to penalize minority misclassifications on real, observed patient records. | The model is exposed to high variance in the sparse minority class feature space, necessitating tree depth regularization (`max_depth=4`). |
-| **2. Triage Threshold Lowering ($\tau = 0.15$) over Default 0.50** | Fixed 0.50 cutoff, ROC curve Youden's $J$ statistic maximization. | A 50% cutoff is designed for symmetric cost functions. In stroke triage, missing an active stroke (False Negative) has catastrophic clinical consequences, whereas a false alarm (False Positive) triggers standard secondary physical checks. Lowering the threshold to 0.15 directly yields **80.0% Recall** (40/50 test cases detected). | Precision drops to **9.71%**, and overall accuracy declines from ~95% to **62.62%**. This trade-off is clinically intentional and beneficial for a triage tool. |
-| **3. Engineering `risk_factors_count` Feature** | Raw un-engineered columns, PCA dimensionality reduction, polynomial interaction features. | In preliminary iterations, tree splits on `age` dominated the root nodes, allowing young patients with multiple comorbidities to slip through undetected. A simple composite integer count explicitly aggregates cumulative vascular risk. | Introduces minor linear collinearity with individual categorical inputs (`hypertension_1`, `heart_disease_1`), which XGBoost handles via greedy split selection. |
-| **4. Dual Explainer Architecture (SHAP + LIME)** | SHAP only, LIME only, Integrated Gradients, Permutation Feature Importance. | SHAP's `TreeExplainer` provides mathematically axiomatic Shapley values across the global population and single patient inputs. However, when auditing complex edge cases (e.g., false negatives), LIME's localized linear perturbation provides intuitive "push-pull" feature weights that explain why a specific decision crossed the boundary. | Increases serialization footprint and introduces two different interpretability semantics that must be explained to non-technical users. |
-| **5. Pre-computing Test SHAP Values to Disk** | On-the-fly computation of all 1,022 test SHAP values upon each Streamlit page load. | Computing exact Shapley values for 1,022 samples across 200 trees requires several seconds of CPU time. Pre-computing and pickling `shap_values_test.pkl` (288 KB) ensures instantaneous sub-50ms tab switching in the web dashboard. | Static test explanations do not dynamically reflect pipeline re-runs unless `shap_explainer.py` is explicitly re-executed. |
-| **6. Serializing LIME Explainer via `dill` instead of standard `pickle`** | Standard `pickle`, re-instantiating LIME from raw data on every startup. | `LimeTabularExplainer` encapsulates internal scoring functions and lambda predicates that trigger `AttributeError` / `PicklingError` under Python's built-in `pickle`. `dill` successfully serializes the full object graph. | Introduces an external dependency (`dill>=0.4.1`) for model artifact hydration. |
+| **1. Out-of-Fold (OOF) Cost-Based Thresholding vs Test Peeking** | Tuning threshold on held-out test recall (legacy v1 approach), default 0.50 cutoff, Youden's $J$. | Selecting threshold by inspecting held-out test recall inflates reported metrics and leaks test information. In v2, the decision threshold ($\tau = 0.0826$) is established strictly on out-of-fold calibrated probabilities using an explicit clinical loss function ($Cost_{FN} / Cost_{FP} = 10$). | Honest generalization recall measures 62.0% [48.0%, 76.0%] on the true holdout rather than an artificially inflated 80.0%. False alarms dropped from 372 to 229, saving clinical resources. |
+| **2. Isotonic Probability Calibration over Raw `scale_pos_weight`** | Raw uncalibrated probabilities, Platt (sigmoid) scaling, temperature scaling. | While `scale_pos_weight = 19.54` helps trees split on minority cases, it severely distorts probability predictions (a raw 15% predicted risk corresponded to ~2-3% true prevalence). Isotonic regression via 5-fold CV reduced Brier score to 0.0427 (vs raw 0.0658) and ECE to 0.0015 (vs raw 0.0648), restoring clinically valid probability interpretation. | Requires fitting an auxiliary step; step-wise isotonic calibration curve. |
+| **3. Aggregated Original-Feature SHAP over Fragmented OHE Dummies** | Showing 19 separate one-hot encoded bars/beeswarms, tree grouping. | In v1, categorical importance was split across separate dummy columns (e.g. `work_type_Private`, `work_type_Govt_job`), obscuring the true impact of the overarching medical factor. Aggregating one-hot SHAP attributions back to the original feature preserves exact mathematical additivity ($\sum \phi_{agg} = \sum \phi_{raw}$) while presenting coherent clinical bars. | Requires pre-computing and mapping feature lineage during explainer serialization. |
+| **4. Mondrian Conformal Prediction Sets over Fixed Point Guarantees** | Standard point predictions, Bayesian uncertainty, split conformal without class conditioning. | Extreme class imbalance (4.87% prevalence) breaks standard conformal prediction. Mondrian class-conditional conformal prediction provides finite-sample 90% coverage guarantees for both healthy patients (90.0% coverage) and stroke patients (93.0% coverage), explicitly identifying an "ambiguous / refer" set {0, 1} for borderline cases (34.3% of cohort). | Clinical referral rate is 34.3%, requiring second-tier nurse/physician triage for ambiguous patients. |
+| **5. Monotonic Constraints on Age & Glucose** | Unconstrained boosting, linear additive models. | Stroke risk is clinically non-decreasing with age and chronic glucose elevation. Optuna hyperparameter tuning demonstrated that enforcing monotonic constraints on age and glucose boosted out-of-fold PR-AUC by +0.0296 (0.1983 vs 0.1687) by preventing overfitting on noisy tabular sub-cohorts. | Restricts tree split topology to respect monotonicity. |
+| **6. SMOTE vs Class-Weighting Controlled Ablation** | Asserting SMOTE failure without controlled evidence. | Evaluating SMOTE and BorderlineSMOTE strictly inside imblearn pipeline CV folds revealed that SMOTE achieved PR-AUC 0.1373 vs scale_pos_weight 0.1809 (DeLong $p=0.654$, statistically indistinguishable, though SMOTE generated ungrounded synthetic elderly profiles). Class weighting was selected for simplicity and avoidance of synthetic vector artifacts. | Preserves true patient empirical vectors without interpolation. |
 
 ---
 
@@ -374,81 +374,125 @@ Standard binary classifiers apply $\hat{y} = \mathbb{I}(P(y=1 \mid x) \ge 0.50)$
 
 ### Performance Metrics Table
 
-| Metric | Measured Value | Target Class | Technical & Clinical Interpretation |
-| :--- | :--- | :--- | :--- |
-| **Stroke Recall (Sensitivity)** | **0.8000 (80.0%)** | Class 1 (Stroke) | **Primary Clinical Metric**. Successfully caught 40 out of 50 stroke cases in the held-out test set. |
-| **ROC-AUC** | **0.8073** | Global | Demonstrates solid discriminative separation across all possible operating thresholds. |
-| **PR-AUC (Average Precision)** | **0.1691** | Class 1 (Stroke) | Evaluates precision-recall trade-off against a low 4.87% random baseline prevalence (~3.5× improvement over chance). |
-| **Stroke Precision** | **0.0971 (9.71%)** | Class 1 (Stroke) | 40 true positives out of 412 total predicted positive alarms. Acceptable in a triage setting where false positives trigger low-cost physical exams. |
-| **Stroke F1-Score** | **0.1732** | Class 1 (Stroke) | Harmonic mean reflecting the deliberate sacrifice of precision to maximize recall. |
-| **No-Stroke Specificity** | **0.6173 (61.73%)** | Class 0 (No Stroke) | 600 out of 972 healthy patients correctly cleared without secondary triage. |
-| **No-Stroke Precision** | **0.9836 (98.36%)** | Class 0 (No Stroke) | When the model rules out a stroke ($P < 0.15$), it is accurate 98.4% of the time. |
-| **Overall Accuracy** | **0.6262 (62.62%)** | Global | Deliberately reduced from 95.1% to eliminate majority-class guessing. |
-| **Macro Average F1** | **0.4658** | Global | Balanced average across both classes without prevalence weighting. |
-| **Weighted Average F1** | **0.7299** | Global | Prevalence-weighted harmonic mean across the test distribution. |
+Evaluated on the frozen, held-out test partition ($N = 1,022$, 50 positive strokes):
+
+| Metric | Legacy v1 Baseline (Heuristic $\tau=0.15$) | Upgraded v2 Rigorous Pipeline (Calibrated + OOF $\tau=0.0826$) | v2 95% Bootstrap CI (1,000 resamples) | Clinical & Methodological Interpretation |
+| :--- | :--- | :--- | :--- | :--- |
+| **Model** | XGBoost (heuristic spw, uncalibrated) | Tuned XGBoost + Isotonic Calibration | — | Monotonic constraints on age & glucose, Optuna tuned. |
+| **Operating Threshold** | `0.15` (tuned by looking at test set) | **`0.0826`** (selected OOF via cost model) | — | $Cost_{FN} / Cost_{FP} = 10$; zero test leakage. |
+| **Stroke Recall (Sensitivity)** | `0.8000` (40/50 caught) | **`0.6200` (31/50 caught)** | `[0.4800, 0.7600]` | Headline 80% recall in v1 was inflated by test peeking. Honest generalization is 62.0%. |
+| **Precision (PPV)** | `0.0971` (9.71%) | **`0.1192` (11.92%)** | `[0.0946, 0.1440]` | v2 improves precision by +2.21% while reducing false alarms by 143 cases. |
+| **Number Needed to Screen (NNS)**| `10.3` patients | **`8.4` patients** | — | Screen 8.4 flagged patients to detect 1 true stroke (down from 10.3). |
+| **ROC-AUC** | `0.8073` | **`0.7900`** | `[0.7184, 0.8477]` | Global discrimination across all operating thresholds. |
+| **PR-AUC (Average Precision)** | `0.1691` | **`0.1822`** | `[0.1260, 0.2875]` | +7.7% relative improvement over legacy baseline. |
+| **Brier Score (Calibration)** | *Uncalibrated* | **`0.0435`** | `[0.0415, 0.0454]` | Near-optimal probabilistic accuracy (ECE reduced by ~40×). |
+| **No-Stroke Specificity** | `0.6173` (600/972) | **`0.7644` (743/972)** | `[0.7366, 0.7912]` | +143 healthy patients correctly spared unnecessary triage. |
+| **F1 Score** | `0.1732` | **`0.2000`** | `[0.1585, 0.2418]` | Harmonic balance between precision and recall. |
+| **F2 Score** | `0.3268` | **`0.3370`** | `[0.2671, 0.4043]` | Recall-weighted clinical screening score ($\beta=2$). |
+| **Population Flag Rate** | `40.3%` (412 flagged) | **`25.4%` (260 flagged)** | `[22.89%, 28.08%]` | Substantially lower clinic triage burden. |
 
 ### Confusion Matrix & Clinical Interpretation
 
-Evaluated on the $N = 1,022$ held-out test set at $\tau = 0.15$:
+Evaluated on the $N = 1,022$ held-out test set:
 
+#### Upgraded v2 Pipeline ($\tau = 0.0826$, Calibrated, Zero Leakage)
+```
+                       Predicted Negative (0)    Predicted Positive (1)
+Actual Negative (0)             743                       229          [Total: 972]
+Actual Positive (1)              19                        31          [Total:  50]
+```
+
+#### Legacy v1 Baseline ($\tau = 0.15$, Heuristic Test-Peaked)
 ```
                        Predicted Negative (0)    Predicted Positive (1)
 Actual Negative (0)             600                       372          [Total: 972]
 Actual Positive (1)              10                        40          [Total:  50]
 ```
 
-- **True Positives (40)**: Patients who suffered a stroke and were successfully flagged for emergency intervention.
-- **False Negatives (10)**: Patients who suffered a stroke but were missed by the model ($P < 0.15$). This is the critical clinical risk metric minimized by this architecture.
-- **False Positives (372)**: Patients without a stroke who were flagged for review. In triage, a false positive costs 5–10 minutes of clinical staff time for verification.
-- **True Negatives (600)**: Patients correctly classified as low-risk and spared redundant diagnostic pathways.
+- **True Positives (31 vs 40)**: 31 stroke cases flagged with honest OOF thresholding. If a strict recall $\ge 80\%$ is demanded, the OOF min-recall rule selects threshold `0.0581` (catching 80.4% OOF).
+- **False Positives (229 vs 372)**: False alarms dropped by **143 patients** (-38.4%), massively reducing hospital triage fatigue while improving precision.
+- **Number Needed to Screen**: 8.4 patients screened per true stroke detected (improved from 10.3).
 
-### Edge Case & Failure Mode Analysis
-[`edgecasedec.py`](edgecasedec.py) scans the held-out test set to isolate decision failure modes, serialized to [`models/edge_cases.json`](models/edge_cases.json):
+### Edge Case & Failure Mode Analysis (v2 Upgrades)
 
-1. **High-Confidence False Positives ($N=5$ audited in JSON)**:
-   - *Example Test Index 45 ($P = 89.96\%$, Actual = 0)* and *Test Index 51 ($P = 87.45\%$, Actual = 0)*.
-   - **Root Cause**: Advanced age combined with high glucose ($>200\text{ mg/dL}$) and hypertension. The patient presents every physiological hallmark of vascular compromise, but had not yet suffered an acute infarction at the time of data collection.
-2. **Severe False Negatives ($N=5$ audited in JSON)**:
-   - *Example Test Index 135 ($P = 3.72\%$, Actual = 1)* and *Test Index 165 ($P = 5.21\%$, Actual = 1)*.
-   - **Root Cause**: Younger individuals with normal blood glucose and no recorded history of hypertension or heart disease. The stroke was likely triggered by unmeasured latent variables (e.g., genetic clotting disorders, patent foramen ovale, or physical trauma) absent from standard tabular EHR records.
-3. **Uncertain Decision Boundaries ($0.45 \le P \le 0.55$)**:
-   - *Example Test Index 58 ($P = 54.41\%$, Actual = 0)* and *Test Index 143 ($P = 48.25\%$, Actual = 0)*.
-   - **Root Cause**: Intermediate age brackets (45–55) with single isolated risk factors (e.g., former smoker, but normal glucose and BMI). LIME attributions in Tab 3 show near-equal counter-balancing forces between age (pushing positive) and absence of hypertension (pushing negative).
+Post-hoc analysis is expanded in v2 (`reports/edge_cases_v2.json`) with dual criteria:
+1. **Conformal Ambiguous Sets ($N=701$ across cohort, 34.3%)**:
+   - Rather than forcing a binary call, patients whose calibrated probability falls in the nonconformity band `[0.0260, 0.1237]` receive prediction set `{No Stroke, Stroke}`. These patients are formally routed to second-line clinical review.
+2. **Near-Operating-Threshold Band ($\tau \pm 0.015$, i.e. $[0.0676, 0.0976]$)**:
+   - Identifies fragile border cases sensitive to minor sensor or self-report noise.
+3. **High-Confidence False Positives ($P > 25\%$, Actual = 0)**:
+   - Patients over 70 with compounding hypertension and glucose $>200\text{ mg/dL}$ who had not yet suffered an event at census time.
+4. **Severe False Negatives ($P < 2\%$, Actual = 1)**:
+   - Young patients (<40) with no documented clinical comorbidities, pointing to unmeasured latent factors (clotting gene variants, aneurysms).
 
 ### Reproduction Steps
-To re-run the entire pipeline from scratch and regenerate identical metrics:
 
-```powershell
-# 1. Download data, engineer features, fit ColumnTransformer, save processed sets
-python data_loader.py
+#### Master Single-Command Reproduction (v2 Pipeline)
+To re-run the entire upgraded pipeline, cross-validation harness, Optuna tuning, calibration, explainers, and test suite:
 
-# 2. Train cost-sensitive XGBoost and output evaluation metrics
-python model_trainer.py
-
-# 3. Compute test SHAP explanations and test summary plots
-python shap_explainer.py
-
-# 4. Fit and serialize LIME tabular explainer
-python lime_expl.py
-
-# 5. Mine and serialize test edge cases
-python edgecasedec.py
+```bash
+uv run python reproduce.py
 ```
 
-Raw outputs are saved directly to `models/training_metadata.json`, `models/edge_cases.json`, and `plots/`.
+#### Step-by-Step Reproduction
+```powershell
+# 1. Freeze stratified train/test split indices (zero leakage)
+python src/save_split_indices.py
+
+# 2. Fit and serialize leak-free sklearn v2 pipeline
+python build_v2_pipeline.py
+
+# 3. Execute 5x5 repeated stratified cross-validation harness with bootstrap CIs
+python evaluation.py
+
+# 4. Run Model Zoo (13 models & SMOTE ablation under identical CV folds)
+python model_zoo.py
+
+# 5. Run Optuna HPO, monotonic constraints, and stacking evaluation
+python hyperparameter_tuning.py
+
+# 6. Fit Isotonic probability calibration & select cost-based threshold
+python calibrate.py
+
+# 7. Compute aggregated SHAP, dependence, interaction, and LIME agreement
+python explainability_v2.py
+
+# 8. Compute Mondrian conformal prediction, subgroup fairness, and edge cases v2
+python conformal_fairness.py
+
+# 9. Execute single one-time evaluation on held-out test set
+python final_eval.py
+```
+
+Raw outputs are saved in `reports/` (JSON & CSV reports), `plots/v2/` (diagnostic visualizations), and `models/v2/` (serialized calibrated pipelines).
 
 ---
 
 ## 🧪 Testing & Quality
 
-- **Current Repository State**: Automated test frameworks (such as `pytest`) are not yet integrated into the repository.
-- **Pipeline Assertion Checks**: Code execution integrity is verified through pipeline assertion scripts:
-  - `data_loader.py`: Verifies download status, non-empty DataFrame structures, and correct serialization of `train_processed.pkl` and `test_processed.pkl`.
-  - `shap_explainer.py`: Contains `test_plots()` (lines 52–74), generating and verifying `plots/shap_summary_beeswarm.png` and `plots/shap_summary_bar.png` to validate plot rendering prior to UI startup.
-- **Target Test Suite Plan (Planned for Near-Term)**:
-  - `test_data_loader.py`: Validate that `gender == 'Other'` is stripped, `risk_factors_count` is computed deterministically, and transformed outputs contain exactly 23 features.
-  - `test_model_trainer.py`: Assert that `scale_pos_weight > 1.0`, decision threshold is clamped within `(0, 1)`, and output probability predictions sum to 1.0.
-  - `test_explainers.py`: Verify that SHAP and LIME explainer objects load without serialization errors and produce non-empty attribution vectors for arbitrary input rows.
+- **Automated Test Suite**: Integrated using `pytest` and `pytest-cov` inside [`tests/`](tests/).
+- **Test Results**: **10 passed out of 10 tests (100% pass rate)**.
+- **Continuous Integration (CI)**: GitHub Actions workflow configured at [`.github/workflows/ci.yml`](.github/workflows/ci.yml) testing Python 3.11 and 3.12 with linting via `ruff` and test coverage reporting.
+
+### Core Test Assertions:
+1. `tests/test_data.py`:
+   - Validates that `gender == 'Other'` is dropped, leaving exactly 5,109 rows.
+   - Asserts `risk_factors_count` calculation correctness (including `hypertension=1 + heart_disease=1 + smokes` evaluates to **3**, fixing the legacy smoke test error).
+2. `tests/test_pipeline.py`:
+   - Verifies train and test index sets have **0% overlap** (`len(train_idx & test_idx) == 0`).
+   - Asserts probability outputs are bounded in $[0, 1]$ and sum to 1.0.
+   - Tests monotonicity of calibrated risk scores across escalating clinical risk profiles.
+   - Asserts operating threshold lies within $(0, 1)$.
+3. `tests/test_explainability.py`:
+   - Validates that SHAP dummy aggregation back to original features preserves exact mathematical additivity ($\sum \phi_{agg} = \sum \phi_{raw}$).
+   - Asserts `TreeExplainer` hydration and valid attribution generation.
+4. `tests/test_app_inference.py`:
+   - Smoke tests end-to-end inference pass through `calibrated_pipeline.joblib`.
+
+Execute the test suite locally:
+```bash
+uv run pytest tests -v --cov=src
+```
 
 ---
 
@@ -510,15 +554,29 @@ pip install -r requirements.txt
 ```
 
 ### Smoke Test
-Execute the following one-line test to verify that the preprocessor, XGBoost model, and SHAP explainer hydrate and execute an inference pass correctly:
+
+#### Upgraded v2 Calibrated Pipeline Smoke Test
+Verify that the leak-free calibrated pipeline, feature engineering, and metadata hydrate and evaluate an inference pass correctly:
 
 ```bash
-python -c "import pickle, json, pandas as pd; m = pickle.load(open('models/xgboost_model.pkl','rb')); p = pickle.load(open('models/preprocessor.pkl','rb')); meta = json.load(open('models/training_metadata.json','r')); df = pd.DataFrame([{'age': 65, 'avg_glucose_level': 140.0, 'bmi': 30.0, 'risk_factors_count': 2, 'gender': 'Male', 'hypertension': 1, 'heart_disease': 1, 'ever_married': 'Yes', 'work_type': 'Private', 'Residence_type': 'Urban', 'smoking_status': 'smokes'}]); prob = m.predict_proba(p.transform(df))[0][1]; print(f'Smoke test passed! Risk: {prob:.1%}, Threshold: {meta[\"threshold\"]}')"
+uv run python -c "import joblib, json, pandas as pd; cal = joblib.load('models/v2/calibrated_pipeline.joblib'); meta = json.load(open('models/v2/metadata.json','r')); df = pd.DataFrame([{'age': 65, 'avg_glucose_level': 140.0, 'bmi': 30.0, 'gender': 'Male', 'hypertension': 1, 'heart_disease': 1, 'ever_married': 'Yes', 'work_type': 'Private', 'Residence_type': 'Urban', 'smoking_status': 'smokes'}]); prob = cal.predict_proba(df)[0][1]; t = meta['chosen_threshold']; print(f'Smoke test passed! Calibrated Risk: {prob:.1%}, Operating Threshold: {t:.4f}, Alert: {prob >= t}')"
 ```
 
 Expected output:
 ```text
-Smoke test passed! Risk: 82.5%, Threshold: 0.15
+Smoke test passed! Calibrated Risk: 15.0%, Operating Threshold: 0.0826, Alert: True
+```
+
+#### Legacy v1 Smoke Test (Corrected Feature Count)
+*Note: In the legacy smoke test, a patient with `hypertension=1`, `heart_disease=1`, and `smoking_status='smokes'` has a true `risk_factors_count = 3` (previously misstated as 2).*
+
+```bash
+uv run python -c "import pickle, json, pandas as pd; m = pickle.load(open('models/xgboost_model.pkl','rb')); p = pickle.load(open('models/preprocessor.pkl','rb')); meta = json.load(open('models/training_metadata.json','r')); df = pd.DataFrame([{'age': 65, 'avg_glucose_level': 140.0, 'bmi': 30.0, 'risk_factors_count': 3, 'gender': 'Male', 'hypertension': 1, 'heart_disease': 1, 'ever_married': 'Yes', 'work_type': 'Private', 'Residence_type': 'Urban', 'smoking_status': 'smokes'}]); prob = m.predict_proba(p.transform(df))[0][1]; print(f'Legacy smoke test passed! Risk: {prob:.1%}, Threshold: {meta[\"threshold\"]}')"
+```
+
+Expected output:
+```text
+Legacy smoke test passed! Risk: 66.2%, Threshold: 0.15
 ```
 
 ---
@@ -683,20 +741,20 @@ SMOTE generates synthetic data points along linear paths between existing minori
 #### 3. What does `scale_pos_weight = 19.54` actually do?
 During XGBoost gradient boosting, `scale_pos_weight` scales the gradient of the loss function for the positive class (stroke). In our training set, there are 3,888 negative cases and 199 positive cases ($3888 / 199 \approx 19.54$). This mathematically tells the optimizer that failing to detect a stroke is roughly 20 times worse than generating a false alarm.
 
-#### 4. Why set the clinical decision threshold to 0.15 instead of 0.50?
-The default 0.50 threshold assumes that false positives and false negatives carry equal cost. In clinical stroke screening, a false negative is potentially fatal, whereas a false positive leads to secondary, non-invasive triage checks. Because stroke prevalence is under 5%, a 15% probability indicates that a patient is at over three times the average population risk.
+#### 4. Why set the clinical decision threshold to 0.0826 in v2 instead of 0.15?
+In legacy v1, the 0.15 threshold was chosen by looking at the held-out test set to produce an 80% recall headline, which represents test-set leakage. Furthermore, because `scale_pos_weight=19.54` inflated raw predicted probabilities, 0.15 on the uncalibrated scale corresponded to ~2-3% true event rate. In v2, probabilities are calibrated using Isotonic Regression (reducing ECE to 0.0015), and the threshold ($\tau = 0.0826$, ~8.3%) was selected strictly out-of-fold using a 10:1 clinical cost loss function ($Cost_{FN} / Cost_{FP} = 10$).
 
-#### 5. Why use both SHAP and LIME?
-SHAP and LIME provide complementary perspectives. SHAP is grounded in cooperative game theory (Shapley values) and provides exact, globally consistent feature attributions across the entire dataset. LIME uses local linear perturbations and excels at dissecting specific edge cases (such as false negatives) to show which specific features were in conflict at the decision boundary.
+#### 5. Does SMOTE really fail on this dataset?
+In Phase 3 of the v2 upgrade, we performed a controlled ablation comparing SMOTE and BorderlineSMOTE strictly inside imblearn pipeline cross-validation folds. The empirical finding: SMOTE achieved out-of-fold PR-AUC 0.1373 vs scale_pos_weight 0.1809 (DeLong $p=0.654$, statistically indistinguishable). While SMOTE does not catastrophically collapse, it generates ungrounded synthetic elderly vectors along $k$-NN lines and offers zero statistical advantage over native class-weighting.
 
-#### 6. Why is `dill` used instead of Python's built-in `pickle` for LIME?
-The `LimeTabularExplainer` object stores internal feature scoring functions and lambda functions for perturbing tabular distributions. Python's standard `pickle` library cannot serialize lambda functions and throws a `PicklingError`. `dill` extends Python's pickle module to serialize closures, lambdas, and complex object graphs.
+#### 6. Why is probability calibration essential for clinical triage?
+Uncalibrated tree ensembles with `scale_pos_weight` produce distorted predicted probabilities that cannot be interpreted as empirical risk percentages. A clinician cannot tell a patient "you have a 15% risk" when the true event rate at that prediction is 3%. Isotonic calibration aligns predicted risks with observed frequencies, reducing the Brier score to 0.0435 and Expected Calibration Error (ECE) from 0.0648 down to 0.0015.
 
-#### 7. Can this system be used in an actual emergency room today?
-No. This system is a proof-of-concept research and engineering prototype. While it demonstrates solid triage principles, clinical deployment requires prospective multi-center trials, HIPAA-compliant infrastructure, regulatory review (FDA/CE-mark Software as a Medical Device), and integration with hospital Electronic Health Record (EHR) systems.
+#### 7. Why use both SHAP and LIME?
+SHAP and LIME provide complementary perspectives. SHAP is grounded in cooperative game theory (Shapley values) and provides exact, globally consistent feature attributions across the entire dataset. In v2, SHAP values across one-hot columns are aggregated back to the original clinical feature level. LIME uses local linear perturbations and provides an independent sanity check on localized decisions. In our agreement audit across 200 patients, SHAP and LIME exhibited a mean Spearman rank correlation of 0.252 and 33.2% top-3 feature overlap, highlighting the importance of not relying on a single explainer.
 
 #### 8. How are missing values in BMI handled?
-The raw dataset contains 201 missing values in the `bmi` column. In `data_loader.py`, we use Scikit-Learn's `SimpleImputer(strategy='median')` fit strictly on the training partition. Median imputation is robust to extreme outliers in body mass index and prevents data leakage into the test set.
+The raw dataset contains 201 missing values in the `bmi` column. In the v2 leak-free pipeline, we use `SimpleImputer(strategy='median')` fit strictly inside CV folds, supplemented by an explicit `bmi_missing` binary indicator feature.
 
 ---
 
@@ -706,9 +764,10 @@ The raw dataset contains 201 missing values in the `bmi` column. In `data_loader
 <summary><strong>Click to expand Resume Bullets, Technical Pitch & Interview Deep Dive</strong></summary>
 
 ### Impact-Driven Resume Bullets
-- **Engineered an end-to-end Explainable AI (XAI) stroke triage pipeline** using XGBoost and Scikit-Learn; solved extreme class imbalance (95.1% negative) using `scale_pos_weight=19.54` and a calibrated 0.15 clinical threshold to achieve **80.0% Stroke Recall (ROC-AUC: 0.8073)** on 1,022 held-out test records.
-- **Architected a dual-engine interpretability dashboard (SHAP & LIME)** in Streamlit; serialized precomputed population Shapley explanations and packaged a dill-serialized local perturbation engine, enabling sub-50ms clinical attribution rendering.
-- **Designed custom feature engineering (`risk_factors_count`)** that mitigated synthetic age bias from SMOTE oversampling, capturing non-linear interactions between smoking, hypertension, and heart disease in younger demographics.
+- **Engineered an end-to-end Explainable AI (XAI) stroke triage pipeline** using XGBoost, Scikit-Learn, and Optuna; eliminated test leakage by selecting cost-optimal decision thresholds out-of-fold ($Cost_{FN}/Cost_{FP}=10$), achieving **62.0% Recall [48.0%, 76.0%]** with **11.9% Precision** and **PR-AUC: 0.1822** on a held-out test cohort ($N=1,022$).
+- **Implemented Isotonic probability calibration & Mondrian conformal prediction**, reducing Expected Calibration Error (ECE) from 0.0648 to 0.0015 and establishing finite-sample 90% coverage guarantees with automated clinical referral flagging for ambiguous cases.
+- **Architected an aggregated feature-level SHAP explanation framework** preserving exact mathematical additivity ($\sum \phi_{agg} = \sum \phi_{raw}$), paired with a 200-patient SHAP-vs-LIME agreement audit and empirical faithfulness deletion curves.
+- **Conducted controlled 13-model benchmark & SMOTE ablation** under identical 5x5 CV folds; demonstrated statistically that SMOTE ($PR\text{-}AUC=0.1373$) is indistinguishable from class-weighting ($PR\text{-}AUC=0.1809$, $p=0.654$) while introducing synthetic feature artifacts.
 
 ---
 

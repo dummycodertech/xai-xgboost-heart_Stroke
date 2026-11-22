@@ -26,14 +26,12 @@ pipeline = build_pipeline(cfg)
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 from xgboost import XGBClassifier
-
 
 # ---------------------------------------------------------------------------
 # Feature-engineering transformers
