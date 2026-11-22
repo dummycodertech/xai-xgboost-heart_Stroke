@@ -969,4 +969,4 @@ key_source_files:
 ## 📄 License & Maintainer
 
 - **License**: Released under the **MIT License** with an explicit **Clinical Research Disclaimer** (see [`LICENSE`](LICENSE)). The model and software are provided for educational and research demonstration purposes only, without express or implied clinical diagnostic warranty.
-- **Author & Maintainer**: **Yagas Vashist** ([dummycodertech](https://github.com/dummycodertech)) — Contact: `yagasvashist@gmail.com`.
+- **Author & Maintainer**: **Yagas Vashist** ([dummycodertech](https://github.com/dummycodertech)).
