@@ -1,0 +1,175 @@
+{
+  "model_version": "v2.0-calibrated",
+  "model_type": "Tuned XGBoost + 5-Fold Isotonic Calibration",
+  "default_threshold": 0.08259259259259258,
+  "calibration_method": "isotonic",
+  "operating_points": {
+    "cost_based_10": {
+      "id": "cost_based_10",
+      "label": "Cost-Optimal (FN/FP = 10)",
+      "threshold": 0.08259259259259258,
+      "description": "Balances false negatives 10x higher than false alarms; minimizes clinical misclassification cost.",
+      "recall": 0.62,
+      "recall_ci": [
+        0.48,
+        0.76
+      ],
+      "precision": 0.11923076923076924,
+      "precision_ci": [
+        0.0946461553416934,
+        0.14400169491525422
+      ],
+      "false_alarms": 229,
+      "false_alarms_ci": [
+        203,
+        256
+      ],
+      "nns": 8.387096774193548,
+      "nns_ci": [
+        6.944362745098039,
+        10.565670289855072
+      ],
+      "matrix": {
+        "tp": 31,
+        "fp": 229,
+        "fn": 19,
+        "tn": 743
+      }
+    },
+    "min_recall_80pct": {
+      "id": "min_recall_80pct",
+      "label": "Target 80% OOF Recall",
+      "threshold": 0.05805805805805806,
+      "description": "Selected to achieve >= 80% sensitivity out-of-fold during clinical triage.",
+      "recall": 0.78,
+      "recall_ci": [
+        0.66,
+        0.88
+      ],
+      "precision": 0.11746987951807229,
+      "precision_ci": [
+        0.1,
+        0.13497129781232123
+      ],
+      "false_alarms": 293,
+      "false_alarms_ci": [
+        266,
+        321
+      ],
+      "nns": 8.512820512820513,
+      "nns_ci": [
+        7.408982683982684,
+        10.0
+      ],
+      "matrix": {
+        "tp": 39,
+        "fp": 293,
+        "fn": 11,
+        "tn": 679
+      }
+    },
+    "high_precision": {
+      "id": "high_precision",
+      "label": "High Precision (Lower False Alarms)",
+      "threshold": 0.13653653653653655,
+      "description": "Prioritizes positive predictive value; reduces false alarms to 69 while catching 32% of strokes.",
+      "recall": 0.32,
+      "recall_ci": [
+        0.2,
+        0.46
+      ],
+      "precision": 0.18823529411764706,
+      "precision_ci": [
+        0.12087912087912088,
+        0.26317616959064327
+      ],
+      "false_alarms": 69,
+      "false_alarms_ci": [
+        53,
+        86
+      ],
+      "nns": 5.3125,
+      "nns_ci": [
+        3.7997368421052635,
+        8.272727272727273
+      ],
+      "matrix": {
+        "tp": 16,
+        "fp": 69,
+        "fn": 34,
+        "tn": 903
+      }
+    }
+  },
+  "evaluation_dataset": {
+    "n_test": 1022,
+    "n_positives": 50,
+    "n_negatives": 972,
+    "split_label": "Stratified 80/20 held-out evaluation (1,022 patients, 50 strokes, 95% bootstrap CIs)"
+  },
+  "features": {
+    "numerical": [
+      "age",
+      "avg_glucose_level",
+      "bmi"
+    ],
+    "categorical": [
+      "gender",
+      "hypertension",
+      "heart_disease",
+      "ever_married",
+      "work_type",
+      "Residence_type",
+      "smoking_status"
+    ],
+    "categories": {
+      "gender": [
+        "Male",
+        "Female"
+      ],
+      "hypertension": [
+        0,
+        1
+      ],
+      "heart_disease": [
+        0,
+        1
+      ],
+      "ever_married": [
+        "Yes",
+        "No"
+      ],
+      "work_type": [
+        "Private",
+        "Self-employed",
+        "Govt_job",
+        "children",
+        "Never_worked"
+      ],
+      "Residence_type": [
+        "Urban",
+        "Rural"
+      ],
+      "smoking_status": [
+        "formerly smoked",
+        "never smoked",
+        "smokes",
+        "Unknown"
+      ]
+    },
+    "bounds": {
+      "age": [
+        0,
+        100
+      ],
+      "avg_glucose_level": [
+        50.0,
+        300.0
+      ],
+      "bmi": [
+        10.0,
+        100.0
+      ]
+    }
+  }
+}
