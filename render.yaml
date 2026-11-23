@@ -14,6 +14,6 @@ services:
       - key: FRONTEND_URL
         value: https://xai-xgboost-heart-stroke.vercel.app
       - key: VERCEL_PREVIEW_REGEX
-        value: '^https:\/\/.*\.vercel\.app$'
+        value: '^https:\/\/(stroke-xai-frontend|xai-xgboost-heart-stroke)(-[a-z0-9-]+)?-(dummycodertech|dummycodertechs-projects)\.vercel\.app$'
       - key: TRUSTED_PROXIES
         value: "127.0.0.1,::1"

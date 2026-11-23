@@ -79,7 +79,8 @@ async def lifespan(app: FastAPI):
         raise FileNotFoundError(f"Missing required artifact: {meta_path}")
 
     STATE["cal_pipe"] = joblib.load(cal_pipe_path)
-    with open(meta_path) as f:
+    # Synchronous load during application startup lifespan is expected and standard in FastAPI
+    with open(meta_path, encoding="utf-8") as f:  # noqa: ASYNC230
         STATE["meta"] = json.load(f)
 
     logger.info("Artifacts loaded successfully. Ready for inference.")
@@ -106,9 +107,7 @@ def get_client_ip(request: Request) -> str:
 
     if (
         direct_ip in TRUSTED_PROXIES
-        or direct_ip.startswith("10.")
-        or direct_ip.startswith("172.")
-        or direct_ip.startswith("192.168.")
+        or direct_ip.startswith(("10.", "172.", "192.168."))
     ):
         xff = request.headers.get("x-forwarded-for")
         if xff:
@@ -151,7 +150,7 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 FRONTEND_PROD_URL = os.getenv("FRONTEND_URL", "https://xai-xgboost-heart-stroke.vercel.app")
 VERCEL_PREVIEW_REGEX = os.getenv(
     "VERCEL_PREVIEW_REGEX",
-    r"^https:\/\/.*\.vercel\.app$",
+    r"^https:\/\/(stroke-xai-frontend|xai-xgboost-heart-stroke)(-[a-z0-9-]+)?-(dummycodertech|dummycodertechs-projects)\.vercel\.app$",
 )
 
 origins = [

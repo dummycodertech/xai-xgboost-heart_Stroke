@@ -60,8 +60,8 @@ def export_production_artifacts():
                 ],
                 "false_alarms": int(eval_ops.get("cost_based_10", {}).get("metrics", {}).get("fp", 229)),
                 "false_alarms_ci": [
-                    int(round(eval_ops.get("cost_based_10", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 203))),
-                    int(round(eval_ops.get("cost_based_10", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 256))),
+                    round(eval_ops.get("cost_based_10", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 203)),
+                    round(eval_ops.get("cost_based_10", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 256)),
                 ],
                 "nns": float(eval_ops.get("cost_based_10", {}).get("metrics", {}).get("nns", 8.4)),
                 "nns_ci": [
@@ -92,8 +92,8 @@ def export_production_artifacts():
                 ],
                 "false_alarms": int(eval_ops.get("min_recall_80pct", {}).get("metrics", {}).get("fp", 293)),
                 "false_alarms_ci": [
-                    int(round(eval_ops.get("min_recall_80pct", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 266))),
-                    int(round(eval_ops.get("min_recall_80pct", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 321))),
+                    round(eval_ops.get("min_recall_80pct", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 266)),
+                    round(eval_ops.get("min_recall_80pct", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 321)),
                 ],
                 "nns": float(eval_ops.get("min_recall_80pct", {}).get("metrics", {}).get("nns", 8.5)),
                 "nns_ci": [
@@ -124,8 +124,8 @@ def export_production_artifacts():
                 ],
                 "false_alarms": int(eval_ops.get("high_precision", {}).get("metrics", {}).get("fp", 69)),
                 "false_alarms_ci": [
-                    int(round(eval_ops.get("high_precision", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 53))),
-                    int(round(eval_ops.get("high_precision", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 86))),
+                    round(eval_ops.get("high_precision", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("lo", 53)),
+                    round(eval_ops.get("high_precision", {}).get("bootstrap_95_ci", {}).get("fp", {}).get("hi", 86)),
                 ],
                 "nns": float(eval_ops.get("high_precision", {}).get("metrics", {}).get("nns", 5.3)),
                 "nns_ci": [
