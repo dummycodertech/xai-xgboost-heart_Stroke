@@ -184,6 +184,19 @@ async def privacy_logging_middleware(request: Request, call_next):
 # Endpoints
 # ---------------------------------------------------------------------------
 
+@app.get("/", summary="API Root")
+async def root():
+    """Root endpoint welcoming users and pointing to docs and health checks."""
+    return {
+        "service": "Stroke Risk Triage & Explainable AI API",
+        "status": "online",
+        "documentation": "/docs",
+        "health": "/health",
+        "metadata": "/meta",
+        "predict": "POST /predict",
+    }
+
+
 @app.get("/health", summary="Health check and warmup probe")
 async def health_check():
     """Immediate 200 OK without model computation for Render cold-start warmup."""
