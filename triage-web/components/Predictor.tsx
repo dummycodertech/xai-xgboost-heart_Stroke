@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useThreshold } from './ThresholdContext'
 import { DEFAULT_PATIENT, predict, STRATEGIES, syncHealth, type PatientInput, type Prediction } from '@/lib/api'
 import { LimeChart } from './charts'
@@ -57,6 +57,7 @@ export function Predictor() {
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [coldNotice, setColdNotice] = useState(false)
+  const hasLoadedOnce = useRef(false)
   const strat = STRATEGIES.find((s) => s.id === sid)!
   const set = <K extends keyof PatientInput>(k: K, v: PatientInput[K]) => setP((o) => ({ ...o, [k]: v }))
 
@@ -67,15 +68,21 @@ export function Predictor() {
     const controller = new AbortController()
     setLoading(true)
 
-    // Notify user if waiting on Render cold start (>3.5s)
-    const coldTimer = setTimeout(() => {
-      if (!stale) setColdNotice(true)
-    }, 3500)
+    // Notify user ONLY on initial cold start before any response has been received
+    let coldTimer: NodeJS.Timeout | undefined
+    if (!hasLoadedOnce.current && !res) {
+      coldTimer = setTimeout(() => {
+        if (!stale && !hasLoadedOnce.current) {
+          setColdNotice(true)
+        }
+      }, 3500)
+    }
 
     const id = setTimeout(() => {
       predict(p, strat.tau, controller.signal)
         .then((r) => {
           if (!stale) {
+            hasLoadedOnce.current = true
             setRes(r)
             setErr(null)
             setLoading(false)
@@ -96,7 +103,7 @@ export function Predictor() {
     return () => {
       stale = true
       clearTimeout(id)
-      clearTimeout(coldTimer)
+      if (coldTimer) clearTimeout(coldTimer)
       controller.abort()
     }
   }, [p, strat.tau])
@@ -155,7 +162,7 @@ export function Predictor() {
         {/* Result */}
         <div className="border border-line bg-surface p-5 sm:p-8" aria-live="polite">
           {err && <p role="alert" className="mb-4 border border-burgundy bg-burgundy-dim p-3 text-sm text-burgundy">The scoring service did not respond. Please try again in a moment.</p>}
-          {coldNotice && (
+          {!res && coldNotice && (
             <div role="status" className="mb-4 border border-ochre bg-ochre-dim p-3 text-sm text-ochre animate-pulse">
               Connecting to cloud inference service... (Render free-tier instances sleep when inactive; first request takes ~30–45s to wake up).
             </div>
