@@ -87,22 +87,31 @@ async def lifespan(app: FastAPI):
     STATE.clear()
 
 
-# Proxy-aware client IP resolver with anti-spoofing protection
+# Proxy-aware client IP resolver with Cloudflare & Render support
 TRUSTED_PROXIES = set(os.getenv("TRUSTED_PROXIES", "127.0.0.1,::1").split(","))
 
 
 def get_client_ip(request: Request) -> str:
     """Resolve real client IP.
     
-    If the direct peer is NOT in TRUSTED_PROXIES, ignore any X-Forwarded-For header to prevent spoofing.
-    If the direct peer IS a trusted proxy, extract the client IP from X-Forwarded-For.
+    1. If Cloudflare's CF-Connecting-IP header exists, use it (Cloudflare is our edge proxy).
+    2. If direct peer is in TRUSTED_PROXIES or private subnets, extract client IP from X-Forwarded-For.
+    3. Otherwise fallback to direct client IP.
     """
+    cf_ip = request.headers.get("cf-connecting-ip")
+    if cf_ip:
+        return cf_ip.strip()
+
     direct_ip = request.client.host if request.client else "127.0.0.1"
 
-    if direct_ip in TRUSTED_PROXIES:
+    if (
+        direct_ip in TRUSTED_PROXIES
+        or direct_ip.startswith("10.")
+        or direct_ip.startswith("172.")
+        or direct_ip.startswith("192.168.")
+    ):
         xff = request.headers.get("x-forwarded-for")
         if xff:
-            # First IP in the list is the originating client
             client_candidate = xff.split(",")[0].strip()
             if client_candidate:
                 return client_candidate
@@ -110,7 +119,7 @@ def get_client_ip(request: Request) -> str:
     return direct_ip
 
 
-limiter = Limiter(key_func=get_client_ip, default_limits=["120/minute"])
+limiter = Limiter(key_func=get_client_ip, default_limits=["300/minute"])
 
 app = FastAPI(
     title="Stroke Risk Triage & Explainability API",
@@ -220,8 +229,8 @@ async def get_metadata():
 
 
 @app.post("/predict", response_model=PredictionResponse, summary="Predict stroke risk and compute explanations")
-@limiter.limit("60/minute")
-async def predict_stroke_risk(patient: PatientInput, request: Request):
+@limiter.limit("300/minute")
+def predict_stroke_risk(patient: PatientInput, request: Request):
     """Calibrated probability triage scoring with exact 5-fold TreeSHAP and local surrogate (LIME-style)."""
     if "cal_pipe" not in STATE or "meta" not in STATE:
         return JSONResponse(status_code=503, content={"error": "Service warming up, please retry in 5 seconds."})
@@ -256,8 +265,8 @@ async def predict_stroke_risk(patient: PatientInput, request: Request):
     # 3. Exact 5-fold TreeSHAP on raw margin log-odds
     base_val, raw_margin, shap_items = compute_5fold_treeshap(cal_pipe, input_df, patient_dict)
 
-    # 4. Human-readable local surrogate (LIME-style) in calibrated probability points
-    surrogate_rules = compute_local_surrogate(cal_pipe, patient_dict, n_samples=500)
+    # 4. Human-readable local surrogate (LIME-style) in calibrated probability points (optimized 100 perturbations)
+    surrogate_rules = compute_local_surrogate(cal_pipe, patient_dict, n_samples=100)
 
     return PredictionResponse(
         probability=round(prob, 4),

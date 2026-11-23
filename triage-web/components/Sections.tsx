@@ -195,9 +195,8 @@ export function Sections() {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setSelectedOp(p.id)}
-                    className={`px-3 py-2 text-left font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-burgundy ${
-                      active ? 'bg-ink text-canvas' : 'bg-surface text-ink hover:bg-hover'
-                    }`}
+                    className={`px-3 py-2 text-left font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-burgundy ${active ? 'bg-ink text-canvas' : 'bg-surface text-ink hover:bg-hover'
+                      }`}
                   >
                     {p.name}
                   </button>
@@ -418,8 +417,8 @@ export function Sections() {
                       f.status === 'STABLE'
                         ? 'text-ink bg-olive-dim border-olive font-semibold'
                         : f.status === 'WATCH'
-                        ? 'text-ink bg-ochre-dim border-ochre font-semibold'
-                        : 'text-ink bg-burgundy-dim border-burgundy font-semibold'
+                          ? 'text-ink bg-ochre-dim border-ochre font-semibold'
+                          : 'text-ink bg-burgundy-dim border-burgundy font-semibold'
 
                     const maxPsi = 0.20
                     const pts = f.history.map((v, i) => {

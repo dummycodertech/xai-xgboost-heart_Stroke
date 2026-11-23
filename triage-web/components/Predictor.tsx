@@ -55,14 +55,50 @@ export function Predictor() {
   const { id: sid, setId: setSid } = useThreshold()
   const [res, setRes] = useState<Prediction | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [coldNotice, setColdNotice] = useState(false)
   const strat = STRATEGIES.find((s) => s.id === sid)!
   const set = <K extends keyof PatientInput>(k: K, v: PatientInput[K]) => setP((o) => ({ ...o, [k]: v }))
 
   useEffect(() => { syncHealth() }, [])
+
   useEffect(() => {
     let stale = false
-    const id = setTimeout(() => { predict(p, strat.tau).then((r) => { if (!stale) { setRes(r); setErr(null) } }).catch((e) => { if (!stale) { console.error('[predict]', e); setErr('request failed') } }) }, 120)
-    return () => { stale = true; clearTimeout(id) }
+    const controller = new AbortController()
+    setLoading(true)
+
+    // Notify user if waiting on Render cold start (>3.5s)
+    const coldTimer = setTimeout(() => {
+      if (!stale) setColdNotice(true)
+    }, 3500)
+
+    const id = setTimeout(() => {
+      predict(p, strat.tau, controller.signal)
+        .then((r) => {
+          if (!stale) {
+            setRes(r)
+            setErr(null)
+            setLoading(false)
+            setColdNotice(false)
+          }
+        })
+        .catch((e: unknown) => {
+          const errName = e && typeof e === 'object' && 'name' in e ? (e as { name: string }).name : ''
+          if (!stale && errName !== 'AbortError') {
+            console.error('[predict]', e)
+            setErr('request failed')
+            setLoading(false)
+            setColdNotice(false)
+          }
+        })
+    }, 200)
+
+    return () => {
+      stale = true
+      clearTimeout(id)
+      clearTimeout(coldTimer)
+      controller.abort()
+    }
   }, [p, strat.tau])
 
   const max = useMemo(() => Math.max(0.01, ...(res?.contributions.map((c) => Math.abs(c.shap)) ?? [0])), [res])
@@ -119,10 +155,21 @@ export function Predictor() {
         {/* Result */}
         <div className="border border-line bg-surface p-5 sm:p-8" aria-live="polite">
           {err && <p role="alert" className="mb-4 border border-burgundy bg-burgundy-dim p-3 text-sm text-burgundy">The scoring service did not respond. Please try again in a moment.</p>}
+          {coldNotice && (
+            <div role="status" className="mb-4 border border-ochre bg-ochre-dim p-3 text-sm text-ochre animate-pulse">
+              Connecting to cloud inference service... (Render free-tier instances sleep when inactive; first request takes ~30–45s to wake up).
+            </div>
+          )}
 
-          <p className="text-sm text-muted">Estimated stroke probability (calibrated)</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted">Estimated stroke probability (calibrated)</p>
+            {loading && res && <span className="font-mono text-xs text-muted animate-pulse">updating...</span>}
+          </div>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-            <p className="font-mono text-7xl font-medium tabular-nums tracking-[-0.04em] text-ink sm:text-8xl">{res ? pct.toFixed(1) : '--'}<span className="text-4xl text-muted sm:text-5xl">%</span></p>
+            <p className="font-mono text-7xl font-medium tabular-nums tracking-[-0.04em] text-ink sm:text-8xl">
+              {res ? pct.toFixed(1) : loading ? <span className="animate-pulse opacity-60">...</span> : '--'}
+              <span className="text-4xl text-muted sm:text-5xl">%</span>
+            </p>
             {res && <span className={`rounded-full px-4 py-1.5 text-sm font-medium ${badge[1]}`}>{badge[0]}</span>}
           </div>
 

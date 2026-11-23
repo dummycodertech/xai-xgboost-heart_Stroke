@@ -45,11 +45,12 @@ const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api'
 // Expected POST {API}/predict body: PatientInput + { threshold }.
 // Expected response: { probability, baseline, contributions: [{ feature, value, shap }] } (shap in log-odds).
 // If your real response differs, change ONLY this function.
-async function fromApi(input: PatientInput, tau: number): Promise<Omit<Prediction, 'latencyMs' | 'source'>> {
+async function fromApi(input: PatientInput, tau: number, signal?: AbortSignal): Promise<Omit<Prediction, 'latencyMs' | 'source'>> {
   const op = STRATEGIES.find((s) => Math.abs(s.tau - tau) < 0.001)?.id ?? 'cost_based_10'
   const res = await fetch(`${API}/predict`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    signal,
     body: JSON.stringify({
       age: input.age,
       avg_glucose_level: input.avg_glucose_level,
@@ -169,9 +170,9 @@ export function useHeroFeatures(): HeroFeature[] {
 }
 
 // >>> Public entry point. Strictly executes inferences on the trained 5-fold calibrated XGBoost pipeline.
-export async function predict(input: PatientInput, tau: number): Promise<Prediction> {
+export async function predict(input: PatientInput, tau: number, signal?: AbortSignal): Promise<Prediction> {
   const t0 = performance.now()
-  const body = await fromApi(input, tau)
+  const body = await fromApi(input, tau, signal)
   const latencyMs = Math.max(0, Math.round(performance.now() - t0))
   const source: 'api' = 'api'
   setTelemetry({ latencyMs, source })
