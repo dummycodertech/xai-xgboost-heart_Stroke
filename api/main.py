@@ -147,7 +147,12 @@ VERCEL_PREVIEW_REGEX = os.getenv(
 
 origins = [FRONTEND_PROD_URL]
 if ENVIRONMENT != "production":
-    origins.extend(["http://localhost:5173", "http://127.0.0.1:5173"])
+    origins.extend([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ])
 
 app.add_middleware(
     CORSMiddleware,

@@ -24,7 +24,8 @@ class PatientInput(BaseModel):
     work_type: Literal["Private", "Self-employed", "Govt_job", "children", "Never_worked"]
     Residence_type: Literal["Urban", "Rural"]
     smoking_status: Literal["formerly smoked", "never smoked", "smokes", "Unknown"]
-    operating_point: Literal["cost_based_10", "min_recall_80pct", "high_precision"] | None = "cost_based_10"
+    operating_point: Literal["cost_based_10", "min_recall_80pct", "high_precision", "cost_optimal"] | None = "cost_based_10"
+    threshold: float | None = None
 
 
 class ShapItem(BaseModel):

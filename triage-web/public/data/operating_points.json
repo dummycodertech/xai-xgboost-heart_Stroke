@@ -1,0 +1,92 @@
+{
+  "cost_based_10": {
+    "threshold": 0.0826,
+    "name": "Cost-based (FN/FP = 10)",
+    "matrix": {
+      "tp": 31,
+      "fp": 229,
+      "fn": 19,
+      "tn": 743
+    },
+    "recall": 0.62,
+    "recall_ci": [
+      0.48,
+      0.76
+    ],
+    "precision": 0.119,
+    "precision_ci": [
+      0.095,
+      0.144
+    ],
+    "false_alarms": 229,
+    "false_alarms_ci": [
+      203,
+      256
+    ],
+    "nns": 8.4,
+    "nns_ci": [
+      6.9,
+      10.6
+    ]
+  },
+  "min_recall_80pct": {
+    "threshold": 0.0581,
+    "name": "Target 80% OOF Recall",
+    "matrix": {
+      "tp": 39,
+      "fp": 293,
+      "fn": 11,
+      "tn": 679
+    },
+    "recall": 0.78,
+    "recall_ci": [
+      0.66,
+      0.88
+    ],
+    "precision": 0.117,
+    "precision_ci": [
+      0.1,
+      0.135
+    ],
+    "false_alarms": 293,
+    "false_alarms_ci": [
+      265,
+      321
+    ],
+    "nns": 8.5,
+    "nns_ci": [
+      7.4,
+      10.0
+    ]
+  },
+  "high_precision": {
+    "threshold": 0.1365,
+    "name": "High Precision (Cost ratio = 5)",
+    "matrix": {
+      "tp": 16,
+      "fp": 69,
+      "fn": 34,
+      "tn": 903
+    },
+    "recall": 0.32,
+    "recall_ci": [
+      0.2,
+      0.46
+    ],
+    "precision": 0.188,
+    "precision_ci": [
+      0.121,
+      0.263
+    ],
+    "false_alarms": 69,
+    "false_alarms_ci": [
+      53,
+      86
+    ],
+    "nns": 5.3,
+    "nns_ci": [
+      3.8,
+      8.3
+    ]
+  }
+}

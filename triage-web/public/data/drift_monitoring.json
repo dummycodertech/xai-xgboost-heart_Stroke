@@ -1,0 +1,89 @@
+{
+  "batches": [
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+    "W6",
+    "W7",
+    "W8"
+  ],
+  "features": [
+    {
+      "name": "age",
+      "psi_history": [
+        0.02,
+        0.03,
+        0.02,
+        0.04,
+        0.03,
+        0.03,
+        0.03,
+        0.03
+      ],
+      "current_psi": 0.03,
+      "status": "STABLE"
+    },
+    {
+      "name": "avg_glucose_level",
+      "psi_history": [
+        0.03,
+        0.04,
+        0.05,
+        0.04,
+        0.06,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "current_psi": 0.05,
+      "status": "STABLE"
+    },
+    {
+      "name": "bmi",
+      "psi_history": [
+        0.03,
+        0.03,
+        0.04,
+        0.03,
+        0.04,
+        0.05,
+        0.04,
+        0.04
+      ],
+      "current_psi": 0.04,
+      "status": "STABLE"
+    },
+    {
+      "name": "hypertension",
+      "psi_history": [
+        0.01,
+        0.02,
+        0.02,
+        0.02,
+        0.03,
+        0.02,
+        0.02,
+        0.02
+      ],
+      "current_psi": 0.02,
+      "status": "STABLE"
+    },
+    {
+      "name": "smoking_status",
+      "psi_history": [
+        0.06,
+        0.08,
+        0.09,
+        0.11,
+        0.12,
+        0.14,
+        0.13,
+        0.13
+      ],
+      "current_psi": 0.13,
+      "status": "WATCH"
+    }
+  ]
+}

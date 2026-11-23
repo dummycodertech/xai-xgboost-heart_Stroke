@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* >>> Tokens: Warm Clinical (light), Diagnostic Monitor (dark). Exact values from the spec. */
+:root {
+  --bg-canvas: #f6f2e9;
+  --bg-surface: #fcfbf7;
+  --bg-hover: #efe9dc;
+  --border-subtle: #ddd5c7;
+  --border-control: #8f8776;
+  --text-primary: #1e1d1a;
+  --text-muted: #656157;
+
+  --color-olive: #556b4e;
+  --color-burgundy: #801835;
+  --color-ochre: #b47b2b;
+
+  --olive-dim: rgba(85, 107, 78, 0.12);
+  --burgundy-dim: rgba(128, 24, 53, 0.1);
+  --ochre-dim: rgba(180, 123, 43, 0.12);
+  --backdrop-line-opacity: 0.06;
+  --backdrop-accent-opacity: 0.08;
+  --flow-crimson: #e11d48;
+  --flow-orange: #ea580c;
+  --flow-gold: #d97706;
+  --flow-dark-red: #9f1239;
+  --flow-opacity: 0.40;
+  --flow-accent-opacity: 0.60;
+
+  /* SHAP diverging scale (light) */
+  --scale-pp: #43573d;
+  --scale-p: #7a9172;
+  --scale-0: #d6cec0;
+  --scale-r: #b34b65;
+  --scale-rr: #801835;
+}
+
+[data-theme='dark'] {
+  --bg-canvas: #141311;
+  --bg-surface: #1c1b18;
+  --bg-hover: #262420;
+  --border-subtle: #2e2c27;
+  --border-control: #706c63;
+  --text-primary: #f6f2e9;
+  --text-muted: #a39e93;
+
+  --color-olive: #8fa885;
+  --color-burgundy: #d44d6e;
+  --color-ochre: #d9a05b;
+
+  --olive-dim: rgba(143, 168, 133, 0.15);
+  --burgundy-dim: rgba(212, 77, 110, 0.16);
+  --ochre-dim: rgba(217, 160, 91, 0.15);
+  --backdrop-line-opacity: 0.085;
+  --backdrop-accent-opacity: 0.11;
+  --flow-crimson: #ff1e56;
+  --flow-orange: #ff6b00;
+  --flow-gold: #ffd000;
+  --flow-dark-red: #ff0055;
+  --flow-opacity: 0.52;
+  --flow-accent-opacity: 0.75;
+
+  /* SHAP scale re-tuned for dark surfaces, derived from the dark accents */
+  --scale-pp: #8fa885;
+  --scale-p: #6d8465;
+  --scale-0: #4a463e;
+  --scale-r: #b34b65;
+  --scale-rr: #d44d6e;
+}
+
+html { background: var(--bg-canvas); color-scheme: light; scroll-behavior: smooth; scroll-padding-top: 64px; }
+h1, h2, h3, h4 { text-wrap: balance; }
+html[data-theme='dark'] { color-scheme: dark; }
+body {
+  color: var(--text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--color-burgundy); color: #f6f2e9; }
+
+:focus-visible { outline: 2px solid var(--color-burgundy); outline-offset: 3px; }
+
+/* >>> Giant wordmark: two stacked copies, split by the monitor's bottom edge */
+.wm { font-family: var(--font-display), system-ui, sans-serif; font-weight: 800; font-stretch: 125%;
+  font-variation-settings: 'wdth' 125; line-height: 0.8; letter-spacing: -0.045em; white-space: nowrap; text-align: center; }
+.wm-a { display: block; color: var(--text-primary); clip-path: inset(0.36em 0 -50% 0); }
+.wm-b { position: absolute; inset: 0; color: #f6f2e9; clip-path: inset(-50% 0 calc(100% - 0.36em) 0); }
+
+/* >>> Range sliders: 1px rail, square thumb */
+input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; cursor: pointer; }
+input[type='range']::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, var(--text-primary) var(--fill, 0%), var(--border-subtle) var(--fill, 0%)); }
+input[type='range']::-moz-range-track { height: 2px; background: var(--border-subtle); }
+input[type='range']::-moz-range-progress { height: 2px; background: var(--text-primary); }
+input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -5px; background: var(--text-primary); border: 0; border-radius: 0; }
+input[type='range']::-moz-range-thumb { width: 12px; height: 12px; background: var(--text-primary); border: 0; border-radius: 0; }
+
+select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* >>> Hero height budget: telemetry bar + header (taller on phones, where the CTA wraps under the tagline) */
+#top { --hdr: 164px; }
+@media (min-width: 640px) { #top { --hdr: 144px; } }
+
+
