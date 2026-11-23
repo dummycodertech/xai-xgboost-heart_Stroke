@@ -50,7 +50,7 @@ All thresholds were fixed **strictly out-of-fold** from the training partition b
 ### Global Ranking & Calibration Metrics
 - **ROC-AUC**: **0.7900** `[0.7184, 0.8477]` (Legacy v1: 0.8073)
 - **PR-AUC**: **0.1822** `[0.1260, 0.2875]` (Legacy v1: 0.1691). The change in PR-AUC is within the bootstrap confidence interval.
-- **Brier Score**: **0.0435** `[0.0415, 0.0454]` (vs raw uncalibrated 0.0658; ECE reduced to 0.0015).
+- **Brier Score**: **0.0428** `[0.0415, 0.0454]` (vs raw uncalibrated 0.0658; Equal-quantile ECE: 0.0190 / 1.90%, Equal-width ECE: 0.0050).
 
 ### Confusion Matrix at Cost-Optimal Threshold ($\tau = 0.0826$)
 ```

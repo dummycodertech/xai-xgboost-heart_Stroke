@@ -82,7 +82,7 @@ const OPERATING_POINTS: OpPoint[] = [
 // >>> Section: Model Architecture and Rigorous Evaluation Specs
 const SPEC: [string, string][] = [
   ['Model architecture', 'XGBoost tree ensemble with scale_pos_weight for ~95/5 class imbalance (5,109 patients total)'],
-  ['Probability calibration', 'Isotonic regression fitted out-of-fold: Brier score 0.0658 -> 0.0427, ECE 0.0648 -> 0.0015'],
+  ['Probability calibration', 'Isotonic regression fitted out-of-fold: Brier score 0.0658 -> 0.0428, Equal-quantile ECE 1.90%'],
   ['Attribution method', 'SHAP values in log-odds margins averaged across 5 cross-validation fold boosters'],
   ['Local surrogate', 'Sparse linear explainer in calibrated probability units around immediate patient neighborhood'],
   ['Evaluation methodology', 'Pre-registered thresholds fixed out-of-fold; final evaluation on isolated 1,022 held-out test set with 1,000 bootstrap resamples'],
@@ -298,7 +298,7 @@ export function Sections() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-base font-semibold text-ink">Reliability Calibration</h4>
-                  <p className="font-mono text-xs text-muted">Brier: 0.0658 &rarr; 0.0427 | ECE: 0.0648 &rarr; 0.0015</p>
+                  <p className="font-mono text-xs text-muted">Brier: 0.0658 &rarr; 0.0428 | Decile ECE: 1.90%</p>
                 </div>
                 <span className="border border-line bg-hover px-2 py-0.5 font-mono text-[11px] text-ink">Isotonic</span>
               </div>

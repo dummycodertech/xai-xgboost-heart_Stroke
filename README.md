@@ -20,7 +20,6 @@
 - **Interactive Swagger Docs**: [https://stroke-xai-api.onrender.com/docs](https://stroke-xai-api.onrender.com/docs)
 - **Technical Model Card**: [MODEL_CARD.md](MODEL_CARD.md)
 - **Deployment Runbook**: [DEPLOYMENT.md](DEPLOYMENT.md)
-- **Interview & Technical Dossier**: [INTERVIEW_PREP.md](INTERVIEW_PREP.md)
 
 ---
 
@@ -249,7 +248,7 @@ sequenceDiagram
 | **2. Loss Reweighting vs. Decision Thresholding** | Relying on `scale_pos_weight` alone to enforce the 10:1 cost trade-off. | `scale_pos_weight = 19.54` scales gradients during tree construction to force minority separation. Post-calibration, the 10:1 clinical cost ratio is mathematically enforced at the decision threshold ($\tau = 0.0826 \approx 1/(1+10)$). | Two-stage setup requires explaining that `scale_pos_weight` shapes tree split geometry while $\tau$ enforces operational cost policy. |
 | **3. Monotonic Constraints on Age & Glucose** | Unconstrained XGBoost decision trees. | Without constraints, tree splits exhibited non-clinical artifacts (e.g. risk dipping between age 58 and 61 due to small sample noise). Enforced `monotone_constraints=(1, 1)` on Age and Glucose. | Minor theoretical loss in unconstrained training fit in exchange for clinically bulletproof, monotonic risk profiles. |
 | **4. Rejection of Synthetic Oversampling (SMOTE)** | SMOTE, Borderline-SMOTE, ADASYN. | SMOTE interpolates between minority vectors. Because positive cases heavily concentrate in elderly cohorts, SMOTE synthesizes unrealistic 70-year-olds, blinding models to young patients with metabolic risks. We chose cost-sensitive `scale_pos_weight = 19.54`. | Model yields lower raw precision compared to aggressive synthetic oversamplers, but preserves clinical realism. |
-| **5. Selection of XGBoost Despite Model Zoo Parity** | Explainable Boosting Machine (EBM) or Logistic Regression. | While linear models and EBMs matched XGBoost on global ROC-AUC ($p > 0.50$ via DeLong test), XGBoost uniquely provides exact C++ `pred_contribs` for sub-2ms TreeSHAP calculation and strict monotonic tree splits. | Required auditing and documenting the baseline margin shift caused by loss reweighting in TreeSHAP. |
+| **5. Selection of XGBoost Despite Model Zoo Parity** | Explainable Boosting Machine (EBM) or Logistic Regression. | While linear models and EBMs matched XGBoost on global ROC-AUC ($p > 0.50$ via DeLong test), XGBoost was retained for: (1) higher-order non-linear feature interactions (`max_depth=8`) beyond EBM's pairwise terms; (2) native monotonic tree split constraints (`monotone_constraints` on age and glucose) across all interactions; and (3) a lean ~140 MB RSS serving container without `interpret`'s heavy runtime C++ dependencies. TreeSHAP's microsecond speed advantage provides sub-2ms margin decomposition over sampling explainers (KernelSHAP/LIME). | Required auditing and documenting the baseline margin shift caused by loss reweighting in TreeSHAP. |
 
 ---
 
