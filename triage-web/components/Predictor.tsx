@@ -140,12 +140,12 @@ export function Predictor() {
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <Seg label="Hypertension" value={p.hypertension} options={[[0,"No"],[1,"Yes"]] as [number, string][]} onChange={(v) => set("hypertension", Number(v) as 0 | 1)} />
-            <Seg label="Heart disease" value={p.heart_disease} options={[[0,"No"],[1,"Yes"]] as [number, string][]} onChange={(v) => set("heart_disease", Number(v) as 0 | 1)} />
-            <Seg label="Gender" value={p.gender} options={[["Male","Male"],["Female","Female"]]} onChange={(v) => set("gender", v as PatientInput["gender"])} />
-            <Seg label="Ever married" value={p.ever_married} options={[["Yes","Yes"],["No","No"]]} onChange={(v) => set("ever_married", v as PatientInput["ever_married"])} />
+            <Seg label="Hypertension" value={p.hypertension} options={[[0, "No"], [1, "Yes"]] as [number, string][]} onChange={(v) => set("hypertension", Number(v) as 0 | 1)} />
+            <Seg label="Heart disease" value={p.heart_disease} options={[[0, "No"], [1, "Yes"]] as [number, string][]} onChange={(v) => set("heart_disease", Number(v) as 0 | 1)} />
+            <Seg label="Gender" value={p.gender} options={[["Male", "Male"], ["Female", "Female"]]} onChange={(v) => set("gender", v as PatientInput["gender"])} />
+            <Seg label="Ever married" value={p.ever_married} options={[["Yes", "Yes"], ["No", "No"]]} onChange={(v) => set("ever_married", v as PatientInput["ever_married"])} />
             <Field label="Work type"><select className={selectCls} value={p.work_type} onChange={(e) => set('work_type', e.target.value as PatientInput['work_type'])}>{['Private', 'Self-employed', 'Govt_job', 'children', 'Never_worked'].map((o) => <option key={o}>{o}</option>)}</select></Field>
-            <Seg label="Residence" value={p.Residence_type} options={[["Urban","Urban"],["Rural","Rural"]]} onChange={(v) => set("Residence_type", v as PatientInput["Residence_type"])} />
+            <Seg label="Residence" value={p.Residence_type} options={[["Urban", "Urban"], ["Rural", "Rural"]]} onChange={(v) => set("Residence_type", v as PatientInput["Residence_type"])} />
           </div>
           <div className="mt-4">
             <Field label="Smoking status"><select className={selectCls} value={p.smoking_status} onChange={(e) => set('smoking_status', e.target.value as PatientInput['smoking_status'])}>{['formerly smoked', 'never smoked', 'smokes', 'Unknown'].map((o) => <option key={o}>{o}</option>)}</select></Field>
