@@ -17,8 +17,8 @@
 
 ### Quick Links
 - **GitHub Repository**: [dummycodertech/xai-xgboost-heart_Stroke](https://github.com/dummycodertech/xai-xgboost-heart_Stroke)
-- **Live Frontend**: [VERIFY: Enter live Vercel production URL, e.g. https://triage-stroke.vercel.app]
-- **API Health Endpoint**: [VERIFY: Enter live Render API URL, e.g. https://stroke-xai-api.onrender.com/health]
+- **Live Frontend**: [https://xai-xgboost-heart-stroke.vercel.app](https://xai-xgboost-heart-stroke.vercel.app)
+- **API Health Endpoint**: [https://stroke-xai-api.onrender.com/health](https://stroke-xai-api.onrender.com/health)
 - **Model Card**: [MODEL_CARD.md](MODEL_CARD.md)
 - **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
 

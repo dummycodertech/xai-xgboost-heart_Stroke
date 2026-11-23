@@ -139,13 +139,17 @@ async def sanitized_validation_exception_handler(request: Request, exc: RequestV
 
 # CORS Configuration: Scoped strictly to production and preview domains
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
-FRONTEND_PROD_URL = os.getenv("FRONTEND_URL", "https://stroke-xai-frontend.vercel.app")
+FRONTEND_PROD_URL = os.getenv("FRONTEND_URL", "https://xai-xgboost-heart-stroke.vercel.app")
 VERCEL_PREVIEW_REGEX = os.getenv(
     "VERCEL_PREVIEW_REGEX",
-    r"^https:\/\/stroke-xai-frontend(-[a-z0-9-]+)?-dummycodertechs-projects\.vercel\.app$",
+    r"^https:\/\/.*\.vercel\.app$",
 )
 
-origins = [FRONTEND_PROD_URL]
+origins = [
+    FRONTEND_PROD_URL,
+    "https://xai-xgboost-heart-stroke.vercel.app",
+    "https://stroke-xai-frontend.vercel.app",
+]
 if ENVIRONMENT != "production":
     origins.extend([
         "http://localhost:3000",
